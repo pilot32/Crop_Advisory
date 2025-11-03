@@ -17,7 +17,9 @@ import 'package:logger/logger.dart';
 import 'core/config/env_config.dart';
 import 'core/theme/app_theme.dart';
 import 'core/constants/app_constants.dart';
-
+import 'features/auth/screens/login_screen.dart';
+import 'features/onboarding/screens/language_selection_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 /// Global logger instance for debugging throughout the app
 final logger = Logger(
   printer: PrettyPrinter(
@@ -174,9 +176,9 @@ class CropAdvisoryApp extends StatelessWidget {
       // Route configuration
       routes: {
         Routes.splash: (context) => const SplashScreen(),
+        Routes.onboarding: (context) => const LanguageSelectionScreen(),
+        Routes.login: (context) => const LoginScreen(),
         // Add more routes as features are implemented
-        // Routes.onboarding: (context) => const OnboardingScreen(),
-        // Routes.login: (context) => const LoginScreen(),
         // Routes.home: (context) => const HomeScreen(),
       },
 
@@ -220,18 +222,24 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     try {
       logger.i('Initializing app on splash screen...');
       
-      // Simulate initialization delay (remove in production or replace with actual checks)
+      // Simulate initialization delay
       await Future.delayed(const Duration(seconds: 2));
 
-      // TODO: Check if user is authenticated
-      // TODO: Check if onboarding is completed
-      // TODO: Navigate to appropriate screen
+      // Check onboarding status
+      final prefs = await SharedPreferences.getInstance();
+      final onboardingCompleted = prefs.getBool(StorageKeys.onboardingCompleted) ?? false;
       
       logger.i('App initialization completed');
       
-      // Navigate to login screen
+      // Navigate to appropriate screen
       if (mounted) {
-        Navigator.of(context).pushReplacementNamed(Routes.login);
+        if (onboardingCompleted) {
+          // TODO: Check auth state and navigate to home or login
+          Navigator.of(context).pushReplacementNamed(Routes.login);
+        } else {
+          // Show onboarding for first-time users
+          Navigator.of(context).pushReplacementNamed(Routes.onboarding);
+        }
       }
     } catch (e) {
       logger.e('Error during app initialization: $e');
