@@ -19,6 +19,7 @@ import 'core/theme/app_theme.dart';
 import 'core/constants/app_constants.dart';
 import 'features/auth/screens/login_screen.dart';
 import 'features/onboarding/screens/language_selection_screen.dart';
+import 'features/home/screens/home_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 /// Global logger instance for debugging throughout the app
 final logger = Logger(
@@ -178,8 +179,8 @@ class CropAdvisoryApp extends StatelessWidget {
         Routes.splash: (context) => const SplashScreen(),
         Routes.onboarding: (context) => const LanguageSelectionScreen(),
         Routes.login: (context) => const LoginScreen(),
+        Routes.home: (context) => const HomeScreen(),
         // Add more routes as features are implemented
-        // Routes.home: (context) => const HomeScreen(),
       },
 
       // 404 route handler
