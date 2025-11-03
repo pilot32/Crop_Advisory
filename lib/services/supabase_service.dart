@@ -6,8 +6,9 @@
 /// - Real-time subscriptions
 /// - File storage operations
 
-import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'dart:typed_data';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:logger/logger.dart';
 import '../core/config/env_config.dart';
 
@@ -338,12 +339,12 @@ class SupabaseService {
       
       // Apply ordering if provided
       if (orderBy != null) {
-        query = query.order(orderBy, ascending: ascending);
+        query = query.order(orderBy, ascending: ascending) as dynamic;
       }
       
       // Apply limit if provided
       if (limit != null) {
-        query = query.limit(limit);
+        query = query.limit(limit) as dynamic;
       }
       
       final response = await query;
@@ -379,7 +380,7 @@ class SupabaseService {
       
       await _client.storage
           .from(bucket)
-          .uploadBinary(path, file);
+          .uploadBinary(path, Uint8List.fromList(file));
       
       _logger.i('File uploaded successfully');
       return path;

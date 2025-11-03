@@ -176,7 +176,7 @@ class CropAdvisoryApp extends StatelessWidget {
       // Theme configuration
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
-      themeMode: ThemeMode.system, // Follow system theme preference
+      themeMode: ThemeMode.light, // Force light theme
 
       // Initial route
       initialRoute: Routes.splash,

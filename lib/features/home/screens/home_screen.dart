@@ -9,7 +9,7 @@ import '../../../core/constants/app_constants.dart';
 import '../widgets/feature_card.dart';
 import '../widgets/weather_card.dart';
 import '../widgets/quick_action_button.dart';
-import '../../auth/providers/auth_provider.dart';
+import '../../auth/providers/simple_auth_provider.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -20,6 +20,37 @@ class HomeScreen extends ConsumerStatefulWidget {
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   int _selectedIndex = 0;
+
+  void _handleNavigation(int index) {
+    if (index == _selectedIndex && index == 0) return;
+    
+    switch (index) {
+      case 0:
+        // Already on home, just reset the index
+        setState(() => _selectedIndex = 0);
+        break;
+      case 1:
+        Navigator.of(context).pushNamed(Routes.chatbot).then((_) {
+          setState(() => _selectedIndex = 0);
+        });
+        break;
+      case 2:
+        Navigator.of(context).pushNamed(Routes.cropAdvisory).then((_) {
+          setState(() => _selectedIndex = 0);
+        });
+        break;
+      case 3:
+        Navigator.of(context).pushNamed(Routes.marketPrices).then((_) {
+          setState(() => _selectedIndex = 0);
+        });
+        break;
+      case 4:
+        Navigator.of(context).pushNamed(Routes.profile).then((_) {
+          setState(() => _selectedIndex = 0);
+        });
+        break;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,20 +66,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               );
             },
           ),
-          IconButton(
-            icon: const Icon(Icons.person_outline),
-            onPressed: () {
-              Navigator.of(context).pushNamed(Routes.profile);
-            },
-          ),
         ],
       ),
-      body: _selectedIndex == 0 ? _buildHomeContent() : _buildPlaceholder(),
+      body: _buildHomeContent(),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
-        onTap: (index) {
-          setState(() => _selectedIndex = index);
-        },
+        onTap: _handleNavigation,
         type: BottomNavigationBarType.fixed,
         items: const [
           BottomNavigationBarItem(
@@ -206,25 +229,4 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  Widget _buildPlaceholder() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.construction,
-            size: 64,
-            color: AppColors.textSecondary,
-          ),
-          const SizedBox(height: AppDimensions.paddingMD),
-          Text(
-            'Feature Coming Soon',
-            style: AppTextStyles.h4.copyWith(
-              color: AppColors.textSecondary,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }

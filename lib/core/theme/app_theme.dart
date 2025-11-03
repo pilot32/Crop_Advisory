@@ -111,6 +111,9 @@ class AppTextStyles {
     height: 1.5,
   );
 
+  // Alias for body (same as bodyMedium)
+  static const TextStyle body = bodyMedium;
+
   // Special text styles
   static const TextStyle button = TextStyle(
     fontSize: 16,
@@ -232,13 +235,13 @@ class AppTheme {
       ),
 
       // Card theme
-      cardTheme: CardTheme(
+      cardTheme: const CardThemeData(
         elevation: 2,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.all(Radius.circular(12)),
         ),
         color: AppColors.surface,
-        margin: const EdgeInsets.all(8),
+        margin: EdgeInsets.all(8),
       ),
 
       // Icon theme

@@ -6,6 +6,7 @@
 /// - Crop advisory recommendations
 /// - Multilingual support
 
+import 'dart:typed_data';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:logger/logger.dart';
@@ -306,7 +307,7 @@ If the image does not show any pest or disease, provide general plant health ass
       final content = [
         Content.multi([
           TextPart(prompt),
-          DataPart(mimeType, imageBytes),
+          DataPart(mimeType, Uint8List.fromList(imageBytes)),
         ])
       ];
       
@@ -360,7 +361,7 @@ Provide actionable insights for the farmer.
       final content = [
         Content.multi([
           TextPart(prompt),
-          DataPart(mimeType, imageBytes),
+          DataPart(mimeType, Uint8List.fromList(imageBytes)),
         ])
       ];
       

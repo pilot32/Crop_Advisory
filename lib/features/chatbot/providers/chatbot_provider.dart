@@ -3,13 +3,10 @@
 /// Manages chat state and interactions with Gemini AI
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_generative_ai/google_generative_ai.dart';
 import '../../../models/chat_message.dart';
 import '../../../services/gemini_service.dart';
 import '../../../main.dart';
-
-final geminiServiceProvider = Provider<GeminiService>((ref) {
-  return GeminiService();
-});
 
 final chatMessagesProvider = StateNotifierProvider<ChatNotifier, List<ChatMessage>>((ref) {
   final geminiService = ref.watch(geminiServiceProvider);
@@ -19,8 +16,14 @@ final chatMessagesProvider = StateNotifierProvider<ChatNotifier, List<ChatMessag
 class ChatNotifier extends StateNotifier<List<ChatMessage>> {
   final GeminiService _geminiService;
   bool _isProcessing = false;
+  ChatSession? _chatSession;
 
   ChatNotifier(this._geminiService) : super([]) {
+    _initializeChat();
+  }
+
+  void _initializeChat() {
+    _chatSession = _geminiService.startChat();
     _addWelcomeMessage();
   }
 
@@ -57,7 +60,10 @@ class ChatNotifier extends StateNotifier<List<ChatMessage>> {
       logger.i('User message added to chat');
 
       // Get AI response
-      final response = await _geminiService.sendMessage(content);
+      final response = await _geminiService.sendChatMessage(
+        session: _chatSession!,
+        message: content,
+      );
 
       // Add assistant message
       final assistantMessage = ChatMessage(
@@ -83,7 +89,8 @@ class ChatNotifier extends StateNotifier<List<ChatMessage>> {
   }
 
   void clearChat() {
-    _geminiService.clearHistory();
+    _chatSession = _geminiService.startChat();
+    state = [];
     _addWelcomeMessage();
     logger.i('Chat cleared');
   }
