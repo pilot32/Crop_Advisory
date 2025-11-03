@@ -20,6 +20,13 @@ import 'core/constants/app_constants.dart';
 import 'features/auth/screens/login_screen.dart';
 import 'features/onboarding/screens/language_selection_screen.dart';
 import 'features/home/screens/home_screen.dart';
+import 'features/chatbot/screens/chatbot_screen.dart';
+import 'features/profile/screens/profile_screen.dart';
+import 'features/crop_advisory/screens/crop_advisory_screen.dart';
+import 'features/soil_health/screens/soil_health_screen.dart';
+import 'features/weather/screens/weather_screen.dart';
+import 'features/pest_detection/screens/pest_detection_screen.dart';
+import 'features/market_prices/screens/market_prices_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 /// Global logger instance for debugging throughout the app
 final logger = Logger(
@@ -180,6 +187,13 @@ class CropAdvisoryApp extends StatelessWidget {
         Routes.onboarding: (context) => const LanguageSelectionScreen(),
         Routes.login: (context) => const LoginScreen(),
         Routes.home: (context) => const HomeScreen(),
+        Routes.chatbot: (context) => const ChatbotScreen(),
+        Routes.profile: (context) => const ProfileScreen(),
+        Routes.cropAdvisory: (context) => const CropAdvisoryScreen(),
+        Routes.soilHealth: (context) => const SoilHealthScreen(),
+        Routes.weather: (context) => const WeatherScreen(),
+        Routes.pestDetection: (context) => const PestDetectionScreen(),
+        Routes.marketPrices: (context) => const MarketPricesScreen(),
         // Add more routes as features are implemented
       },
 
