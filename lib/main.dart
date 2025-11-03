@@ -229,11 +229,10 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
       
       logger.i('App initialization completed');
       
-      // For now, stay on splash screen
-      // In future, navigate based on auth state:
-      // if (mounted) {
-      //   Navigator.of(context).pushReplacementNamed(Routes.home);
-      // }
+      // Navigate to login screen
+      if (mounted) {
+        Navigator.of(context).pushReplacementNamed(Routes.login);
+      }
     } catch (e) {
       logger.e('Error during app initialization: $e');
     }
