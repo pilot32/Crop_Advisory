@@ -1,0 +1,19 @@
+{
+  "app_name": "Crop Advisory",
+  "welcome": "Welcome",
+  "login": "Login",
+  "register": "Register",
+  "email": "Email",
+  "password": "Password",
+  "forgot_password": "Forgot Password?",
+  "home": "Home",
+  "chatbot": "AI Assistant",
+  "crop_advisory": "Crop Advisory",
+  "soil_health": "Soil Health",
+  "weather": "Weather",
+  "pest_detection": "Pest Detection",
+  "market_prices": "Market Prices",
+  "profile": "Profile",
+  "settings": "Settings",
+  "logout": "Logout"
+}
