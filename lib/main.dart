@@ -1,5 +1,5 @@
 /// Crop Advisory - Main Application Entry Point
-/// 
+///
 /// This file initializes all core services and starts the Flutter application.
 /// It handles:
 /// - Environment configuration loading
@@ -13,22 +13,27 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:logger/logger.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'l10n/app_localizations.dart';
 
 import 'core/config/env_config.dart';
 import 'core/theme/app_theme.dart';
 import 'core/constants/app_constants.dart';
 import 'core/providers/theme_provider.dart';
+import 'core/providers/language_provider.dart';
 import 'features/auth/screens/login_screen.dart';
 import 'features/onboarding/screens/language_selection_screen.dart';
 import 'features/home/screens/home_screen.dart';
 import 'features/chatbot/screens/chatbot_screen.dart';
 import 'features/profile/screens/profile_screen.dart';
+import 'features/profile/screens/language_chnage.dart';
 import 'features/crop_advisory/screens/crop_advisory_screen.dart';
 import 'features/soil_health/screens/soil_health_screen.dart';
 import 'features/weather/screens/weather_screen.dart';
 import 'features/pest_detection/screens/pest_detection_screen.dart';
 import 'features/market_prices/screens/market_prices_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 /// Global logger instance for debugging throughout the app
 final logger = Logger(
   printer: PrettyPrinter(
@@ -41,7 +46,7 @@ final logger = Logger(
 );
 
 /// Main function - Entry point of the application
-/// 
+///
 /// This function:
 /// 1. Ensures Flutter binding is initialized
 /// 2. Loads environment variables from .env file
@@ -52,7 +57,7 @@ void main() async {
   try {
     // Ensure Flutter bindings are initialized
     WidgetsFlutterBinding.ensureInitialized();
-    
+
     logger.i('Starting Crop Advisory App...');
 
     // Load environment variables from .env file
@@ -99,16 +104,12 @@ void main() async {
     ]);
 
     logger.i('Launching app...');
-    
+
     // Run the app wrapped in ProviderScope for Riverpod state management
-    runApp(
-      const ProviderScope(
-        child: CropAdvisoryApp(),
-      ),
-    );
+    runApp(const ProviderScope(child: CropAdvisoryApp()));
   } catch (e, stackTrace) {
     logger.e('Error initializing app', error: e, stackTrace: stackTrace);
-    
+
     // Show error screen if initialization fails
     runApp(
       MaterialApp(
@@ -119,18 +120,11 @@ void main() async {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(
-                    Icons.error_outline,
-                    color: Colors.red,
-                    size: 64,
-                  ),
+                  const Icon(Icons.error_outline, color: Colors.red, size: 64),
                   const SizedBox(height: 16),
                   const Text(
                     'Failed to initialize app',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 8),
@@ -158,7 +152,7 @@ void main() async {
 }
 
 /// Root widget of the application
-/// 
+///
 /// This widget sets up:
 /// - Material app configuration
 /// - Theme data (light and dark modes)
@@ -170,7 +164,7 @@ class CropAdvisoryApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final themeMode = ref.watch(themeMode$Provider);
-
+    final locale = ref.watch(localeNotifierProvider);
     return MaterialApp(
       // App metadata
       title: AppConstants.appName,
@@ -183,7 +177,19 @@ class CropAdvisoryApp extends ConsumerWidget {
 
       // Initial route
       initialRoute: Routes.splash,
+      //Language configurations
+      locale: locale,
+      supportedLocales: const [
+        Locale('en'), // English
+        Locale('hi'), // Hindi
+      ],
 
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
       // Route configuration
       routes: {
         Routes.splash: (context) => const SplashScreen(),
@@ -197,6 +203,7 @@ class CropAdvisoryApp extends ConsumerWidget {
         Routes.weather: (context) => const WeatherScreen(),
         Routes.pestDetection: (context) => const PestDetectionScreen(),
         Routes.marketPrices: (context) => const MarketPricesScreen(),
+        Routes.languageSelection: (context) => const LanguageChangeScreen(),
         // Add more routes as features are implemented
       },
 
@@ -216,7 +223,7 @@ class CropAdvisoryApp extends ConsumerWidget {
 }
 
 /// Splash Screen - Shown while app initializes
-/// 
+///
 /// This screen:
 /// - Displays app logo and branding
 /// - Checks authentication status
@@ -239,16 +246,17 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   Future<void> _initializeApp() async {
     try {
       logger.i('Initializing app on splash screen...');
-      
+
       // Simulate initialization delay
       await Future.delayed(const Duration(seconds: 2));
 
       // Check onboarding status
       final prefs = await SharedPreferences.getInstance();
-      final onboardingCompleted = prefs.getBool(StorageKeys.onboardingCompleted) ?? false;
-      
+      final onboardingCompleted =
+          prefs.getBool(StorageKeys.onboardingCompleted) ?? false;
+
       logger.i('App initialization completed');
-      
+
       // Navigate to appropriate screen
       if (mounted) {
         if (onboardingCompleted) {
@@ -273,22 +281,16 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             // App logo (placeholder - replace with actual logo)
-            Icon(
-              Icons.agriculture,
-              size: 100,
-              color: AppColors.textLight,
-            ),
+            Icon(Icons.agriculture, size: 100, color: AppColors.textLight),
             const SizedBox(height: 24),
-            
+
             // App name
             Text(
               AppConstants.appName,
-              style: AppTextStyles.h2.copyWith(
-                color: AppColors.textLight,
-              ),
+              style: AppTextStyles.h2.copyWith(color: AppColors.textLight),
             ),
             const SizedBox(height: 8),
-            
+
             // App tagline
             Text(
               'Smart Farming Assistant',
@@ -297,7 +299,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
               ),
             ),
             const SizedBox(height: 48),
-            
+
             // Loading indicator
             const CircularProgressIndicator(
               valueColor: AlwaysStoppedAnimation<Color>(AppColors.textLight),

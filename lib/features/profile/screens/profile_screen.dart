@@ -1,5 +1,5 @@
 /// Profile Screen
-/// 
+///
 /// User profile with settings and account information
 
 import 'package:flutter/material.dart';
@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../auth/providers/simple_auth_provider.dart';
+import '../../../l10n/app_localizations.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
@@ -15,6 +16,7 @@ class ProfileScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(currentUserProvider);
     final authNotifier = ref.read(authProvider.notifier);
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
@@ -44,17 +46,10 @@ class ProfileScreen extends ConsumerWidget {
                     color: AppColors.primary.withOpacity(0.1),
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(
-                    Icons.person,
-                    size: 50,
-                    color: AppColors.primary,
-                  ),
+                  child: Icon(Icons.person, size: 50, color: AppColors.primary),
                 ),
                 const SizedBox(height: AppDimensions.paddingMD),
-                Text(
-                  user?.email ?? 'Guest User',
-                  style: AppTextStyles.h3,
-                ),
+                Text(user?.email ?? 'Guest User', style: AppTextStyles.h3),
                 const SizedBox(height: AppDimensions.paddingSM),
                 Text(
                   'Farmer',
@@ -157,7 +152,9 @@ class ProfileScreen extends ConsumerWidget {
 
           // Logout Button
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: AppDimensions.paddingMD),
+            padding: const EdgeInsets.symmetric(
+              vertical: AppDimensions.paddingMD,
+            ),
             child: ElevatedButton.icon(
               onPressed: () => _showLogoutConfirmation(context, authNotifier),
               icon: const Icon(Icons.logout),
@@ -180,10 +177,7 @@ class ProfileScreen extends ConsumerWidget {
         bottom: AppDimensions.paddingSM,
         top: AppDimensions.paddingSM,
       ),
-      child: Text(
-        title,
-        style: AppTextStyles.h4,
-      ),
+      child: Text(title, style: AppTextStyles.h4),
     );
   }
 
@@ -235,10 +229,9 @@ class ProfileScreen extends ConsumerWidget {
               Navigator.of(context).pop();
               await authNotifier.signOut();
               if (context.mounted) {
-                Navigator.of(context).pushNamedAndRemoveUntil(
-                  Routes.login,
-                  (route) => false,
-                );
+                Navigator.of(
+                  context,
+                ).pushNamedAndRemoveUntil(Routes.login, (route) => false);
               }
             },
             child: const Text('Logout'),
