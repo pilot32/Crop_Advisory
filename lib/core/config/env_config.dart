@@ -48,8 +48,7 @@ class EnvConfig {
   /// Validates that all required configuration values are present
   bool get isValid {
     return supabaseUrl.isNotEmpty &&
-        supabaseAnonKey.isNotEmpty &&
-        geminiApiKey.isNotEmpty;
+        supabaseAnonKey.isNotEmpty;
   }
 }
 

@@ -17,6 +17,7 @@ import 'package:logger/logger.dart';
 import 'core/config/env_config.dart';
 import 'core/theme/app_theme.dart';
 import 'core/constants/app_constants.dart';
+import 'core/providers/theme_provider.dart';
 import 'features/auth/screens/login_screen.dart';
 import 'features/onboarding/screens/language_selection_screen.dart';
 import 'features/home/screens/home_screen.dart';
@@ -65,7 +66,7 @@ void main() async {
       logger.e('Invalid environment configuration. Please check .env file.');
       throw Exception(
         'Missing required environment variables. '
-        'Please ensure SUPABASE_URL, SUPABASE_ANON_KEY, and GEMINI_API_KEY are set in .env file.',
+        'Please ensure SUPABASE_URL and SUPABASE_ANON_KEY are set in .env file.',
       );
     }
     logger.i('Environment configuration validated');
@@ -163,20 +164,22 @@ void main() async {
 /// - Theme data (light and dark modes)
 /// - Initial route
 /// - Navigation routes
-class CropAdvisoryApp extends StatelessWidget {
+class CropAdvisoryApp extends ConsumerWidget {
   const CropAdvisoryApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final themeMode = ref.watch(themeMode$Provider);
+
     return MaterialApp(
       // App metadata
       title: AppConstants.appName,
       debugShowCheckedModeBanner: false,
 
-      // Theme configuration
+      // Theme configuration with dynamic switching
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
-      themeMode: ThemeMode.light, // Force light theme
+      themeMode: themeMode,
 
       // Initial route
       initialRoute: Routes.splash,

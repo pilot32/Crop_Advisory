@@ -4,12 +4,22 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'dart:ui';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/constants/app_constants.dart';
+import '../../../core/providers/theme_provider.dart';
+import '../../../core/utils/animated_page_route.dart';
 import '../widgets/feature_card.dart';
 import '../widgets/weather_card.dart';
 import '../widgets/quick_action_button.dart';
 import '../../auth/providers/simple_auth_provider.dart';
+import '../../chatbot/screens/chatbot_screen.dart';
+import '../../pest_detection/screens/pest_detection_screen.dart';
+import '../../crop_advisory/screens/crop_advisory_screen.dart';
+import '../../soil_health/screens/soil_health_screen.dart';
+import '../../weather/screens/weather_screen.dart';
+import '../../market_prices/screens/market_prices_screen.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -57,7 +67,19 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(AppConstants.appName),
+        elevation: 0,
         actions: [
+          // Theme toggle
+          IconButton(
+            icon: Icon(
+              ref.watch(themeMode$Provider) == ThemeMode.dark
+                  ? Icons.light_mode
+                  : Icons.dark_mode,
+            ),
+            onPressed: () async {
+              await ref.read(themeMode$Provider.notifier).toggleTheme();
+            },
+          ).animate().fadeIn(duration: 300.ms).scale(),
           IconButton(
             icon: const Icon(Icons.notifications_outlined),
             onPressed: () {
@@ -65,7 +87,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 const SnackBar(content: Text('Notifications coming soon')),
               );
             },
-          ),
+          ).animate().fadeIn(duration: 300.ms, delay: 100.ms).scale(),
+          const SizedBox(width: 8),
         ],
       ),
       body: _buildHomeContent(),
@@ -112,29 +135,32 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Welcome Section
+          // Welcome Section with animation
           Text(
             'Welcome back${user?.email != null ? ', Farmer' : ''}!',
             style: AppTextStyles.h3,
-          ),
+          ).animate().fadeIn(duration: 400.ms).slideX(begin: -0.2, end: 0),
           const SizedBox(height: AppDimensions.paddingSM),
           Text(
             'How can we help you today?',
             style: AppTextStyles.bodyLarge.copyWith(
               color: AppColors.textSecondary,
             ),
-          ),
+          ).animate().fadeIn(duration: 400.ms, delay: 100.ms).slideX(begin: -0.2, end: 0),
           const SizedBox(height: AppDimensions.paddingLG),
 
-          // Weather Card
-          const WeatherCard(),
+          // Weather Card with animation
+          const WeatherCard()
+              .animate()
+              .fadeIn(duration: 500.ms, delay: 200.ms)
+              .slideY(begin: 0.3, end: 0),
           const SizedBox(height: AppDimensions.paddingLG),
 
-          // Quick Actions
+          // Quick Actions with animation
           Text(
             'Quick Actions',
             style: AppTextStyles.h4,
-          ),
+          ).animate().fadeIn(duration: 400.ms, delay: 300.ms).slideX(begin: -0.2, end: 0),
           const SizedBox(height: AppDimensions.paddingMD),
           Row(
             children: [
@@ -144,9 +170,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   label: 'Ask AI',
                   color: AppColors.primary,
                   onTap: () {
-                    Navigator.of(context).pushNamed(Routes.chatbot);
+                    context.pushWithSlide(const ChatbotScreen());
                   },
-                ),
+                )
+                    .animate()
+                    .fadeIn(duration: 500.ms, delay: 400.ms)
+                    .scale(begin: const Offset(0.8, 0.8), end: const Offset(1, 1)),
               ),
               const SizedBox(width: AppDimensions.paddingMD),
               Expanded(
@@ -155,19 +184,22 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   label: 'Scan Pest',
                   color: AppColors.accent,
                   onTap: () {
-                    Navigator.of(context).pushNamed(Routes.pestDetection);
+                    context.pushWithSlide(const PestDetectionScreen());
                   },
-                ),
+                )
+                    .animate()
+                    .fadeIn(duration: 500.ms, delay: 500.ms)
+                    .scale(begin: const Offset(0.8, 0.8), end: const Offset(1, 1)),
               ),
             ],
           ),
           const SizedBox(height: AppDimensions.paddingLG),
 
-          // Features Section
+          // Features Section with animation
           Text(
             'Features',
             style: AppTextStyles.h4,
-          ),
+          ).animate().fadeIn(duration: 400.ms, delay: 600.ms).slideX(begin: -0.2, end: 0),
           const SizedBox(height: AppDimensions.paddingMD),
 
           FeatureCard(
@@ -175,10 +207,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             title: 'Crop Advisory',
             description: 'Get personalized crop recommendations',
             color: AppColors.success,
-            onTap: () {
-              Navigator.of(context).pushNamed(Routes.cropAdvisory);
-            },
-          ),
+            onTap: () => context.pushWithSlide(const CropAdvisoryScreen()),
+          )
+              .animate()
+              .fadeIn(duration: 500.ms, delay: 700.ms)
+              .slideX(begin: -0.3, end: 0),
           const SizedBox(height: AppDimensions.paddingMD),
 
           FeatureCard(
@@ -186,10 +219,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             title: 'Soil Health',
             description: 'Analyze soil and get fertilizer advice',
             color: AppColors.secondary,
-            onTap: () {
-              Navigator.of(context).pushNamed(Routes.soilHealth);
-            },
-          ),
+            onTap: () => context.pushWithSlide(const SoilHealthScreen()),
+          )
+              .animate()
+              .fadeIn(duration: 500.ms, delay: 800.ms)
+              .slideX(begin: -0.3, end: 0),
           const SizedBox(height: AppDimensions.paddingMD),
 
           FeatureCard(
@@ -197,10 +231,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             title: 'Weather Forecast',
             description: 'Check weather alerts and forecasts',
             color: AppColors.info,
-            onTap: () {
-              Navigator.of(context).pushNamed(Routes.weather);
-            },
-          ),
+            onTap: () => context.pushWithSlide(const WeatherScreen()),
+          )
+              .animate()
+              .fadeIn(duration: 500.ms, delay: 900.ms)
+              .slideX(begin: -0.3, end: 0),
           const SizedBox(height: AppDimensions.paddingMD),
 
           FeatureCard(
@@ -208,10 +243,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             title: 'Pest Detection',
             description: 'Identify pests and diseases from images',
             color: AppColors.error,
-            onTap: () {
-              Navigator.of(context).pushNamed(Routes.pestDetection);
-            },
-          ),
+            onTap: () => context.pushWithSlide(const PestDetectionScreen()),
+          )
+              .animate()
+              .fadeIn(duration: 500.ms, delay: 1000.ms)
+              .slideX(begin: -0.3, end: 0),
           const SizedBox(height: AppDimensions.paddingMD),
 
           FeatureCard(
@@ -219,10 +255,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             title: 'Market Prices',
             description: 'Track crop prices and trends',
             color: AppColors.accent,
-            onTap: () {
-              Navigator.of(context).pushNamed(Routes.marketPrices);
-            },
-          ),
+            onTap: () => context.pushWithSlide(const MarketPricesScreen()),
+          )
+              .animate()
+              .fadeIn(duration: 500.ms, delay: 1100.ms)
+              .slideX(begin: -0.3, end: 0),
           const SizedBox(height: AppDimensions.paddingMD),
         ],
       ),

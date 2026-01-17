@@ -56,7 +56,7 @@ dependencies:
   geocoding: ^3.0.0
 
   # Voice & Speech
-  speech_to_text: ^6.6.2
+  speech_to_text: ^7.3.0
   flutter_tts: ^4.0.2
 
   # Local Storage
@@ -76,6 +76,27 @@ dependencies:
 
   # Icons
   cupertino_icons: ^1.0.8
+
+  # Animations
+  flutter_animate: ^4.5.0
+  lottie: ^3.1.0
+
+  # Notifications
+  flutter_local_notifications: ^17.2.3
+  timezone: ^0.9.4
+
+  # Video Player
+  video_player: ^2.9.2
+  chewie: ^1.8.5
+
+  # URL Launcher (for external links)
+  url_launcher: ^6.3.1
+
+  # File Picker (for offline content)
+  file_picker: ^8.1.4
+
+  # Flutter SVG
+  flutter_svg: ^2.0.10+1
 
 dev_dependencies:
   flutter_test:
