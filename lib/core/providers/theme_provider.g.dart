@@ -6,11 +6,9 @@ part of 'theme_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$themeMode$Hash() => r'fc722da0c277f64b6d34b3c7a2b64a10ed7a1745';
+String _$themeMode$Hash() => r'9b2f108270ccafa9cf98a8d74acba1b7ee5599a9';
 
-/// Theme mode state provider
-///
-/// Copied from [ThemeMode$].
+/// See also [ThemeMode$].
 @ProviderFor(ThemeMode$)
 final themeMode$Provider =
     AutoDisposeNotifierProvider<ThemeMode$, ThemeMode>.internal(
