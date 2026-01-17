@@ -14,7 +14,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:logger/logger.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:crop_advisory/l10n/app_localizations.dart';
+import 'l10n/app_localizations.dart';
 
 import 'core/config/env_config.dart';
 import 'core/theme/app_theme.dart';
@@ -26,6 +26,7 @@ import 'features/onboarding/screens/language_selection_screen.dart';
 import 'features/home/screens/home_screen.dart';
 import 'features/chatbot/screens/chatbot_screen.dart';
 import 'features/profile/screens/profile_screen.dart';
+import 'features/profile/screens/language_chnage.dart';
 import 'features/crop_advisory/screens/crop_advisory_screen.dart';
 import 'features/soil_health/screens/soil_health_screen.dart';
 import 'features/weather/screens/weather_screen.dart';
@@ -202,6 +203,7 @@ class CropAdvisoryApp extends ConsumerWidget {
         Routes.weather: (context) => const WeatherScreen(),
         Routes.pestDetection: (context) => const PestDetectionScreen(),
         Routes.marketPrices: (context) => const MarketPricesScreen(),
+        Routes.languageSelection: (context) => const LanguageChangeScreen(),
         // Add more routes as features are implemented
       },
 

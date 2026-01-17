@@ -5,7 +5,7 @@ part 'language_provider.g.dart';
 
 const String _localeKey = 'app_locale';
 
-@riverpod
+@Riverpod(keepAlive: true)
 class LocaleNotifier extends _$LocaleNotifier {
   SharedPreferences? _prefs;
 
