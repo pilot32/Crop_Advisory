@@ -1,0 +1,14 @@
+{
+  "@@locale": "hi",
+  "profile": "प्रोफ़ाइल",
+  "account": "खाता",
+  "preferences": "पसंद",
+  "language": "भाषा",
+  "logout": "लॉगआउट",
+  "cancel": "रद्द करें",
+  "about": "ऐप के बारे में",
+  "helpSupport": "सहायता",
+  "theme": "थीम",
+  "notifications": "सूचनाएं",
+  "changeAppLanguage": "ऐप की भाषा बदलें"
+}

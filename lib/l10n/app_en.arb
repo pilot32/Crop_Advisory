@@ -1,0 +1,14 @@
+{
+  "@@locale": "en",
+  "profile": "Profile",
+  "account": "Account",
+  "preferences": "Preferences",
+  "language": "Language",
+  "logout": "Logout",
+  "cancel": "Cancel",
+  "about": "About",
+  "helpSupport": "Help & Support",
+  "theme": "Theme",
+  "notifications": "Notifications",
+  "changeAppLanguage": "Change app language"
+}
