@@ -76,8 +76,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   ? Icons.light_mode
                   : Icons.dark_mode,
             ),
-            onPressed: () async {
-              await ref.read(themeMode$Provider.notifier).toggle();
+            onPressed: () {
+              ref.read(themeMode$Provider.notifier).toggleTheme();
             },
           ).animate().fadeIn(duration: 300.ms).scale(),
           IconButton(
