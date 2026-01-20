@@ -9,6 +9,7 @@ import 'dart:ui';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/providers/theme_provider.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../core/utils/animated_page_route.dart';
 import '../widgets/feature_card.dart';
 import '../widgets/weather_card.dart';
@@ -129,6 +130,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   Widget _buildHomeContent() {
     final user = ref.watch(currentUserProvider);
+    final l10n = AppLocalizations.of(context)!;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(AppDimensions.paddingMD),
@@ -137,12 +139,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         children: [
           // Welcome Section with animation
           Text(
-            'Welcome back${user?.email != null ? ', Farmer' : ''}!',
+            user?.email != null ? l10n.welcomeBackFarmer : l10n.welcomeBack,
             style: AppTextStyles.h3,
           ).animate().fadeIn(duration: 400.ms).slideX(begin: -0.2, end: 0),
           const SizedBox(height: AppDimensions.paddingSM),
           Text(
-                'How can we help you today?',
+                l10n.howCanWeHelpYou,
                 style: AppTextStyles.bodyLarge.copyWith(
                   color: AppColors.textSecondary,
                 ),
@@ -160,7 +162,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           const SizedBox(height: AppDimensions.paddingLG),
 
           // Quick Actions with animation
-          Text('Quick Actions', style: AppTextStyles.h4)
+          Text(l10n.quickActions, style: AppTextStyles.h4)
               .animate()
               .fadeIn(duration: 400.ms, delay: 300.ms)
               .slideX(begin: -0.2, end: 0),
@@ -171,7 +173,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 child:
                     QuickActionButton(
                           icon: Icons.chat,
-                          label: 'Ask AI',
+                          label: l10n.askAI,
                           color: AppColors.primary,
                           onTap: () {
                             context.pushWithSlide(const ChatbotScreen());
@@ -189,7 +191,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 child:
                     QuickActionButton(
                           icon: Icons.camera_alt,
-                          label: 'Scan Pest',
+                          label: l10n.scanPest,
                           color: AppColors.accent,
                           onTap: () {
                             context.pushWithSlide(const PestDetectionScreen());
@@ -207,7 +209,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           const SizedBox(height: AppDimensions.paddingLG),
 
           // Features Section with animation
-          Text('Features', style: AppTextStyles.h4)
+          Text(l10n.features, style: AppTextStyles.h4)
               .animate()
               .fadeIn(duration: 400.ms, delay: 600.ms)
               .slideX(begin: -0.2, end: 0),
@@ -215,8 +217,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
           FeatureCard(
                 icon: Icons.eco,
-                title: 'Crop Advisory',
-                description: 'Get personalized crop recommendations',
+                title: l10n.cropAdvisory,
+                description: l10n.cropAdvisoryDesc,
                 color: AppColors.success,
                 onTap: () => context.pushWithSlide(const CropAdvisoryScreen()),
               )
@@ -227,8 +229,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
           FeatureCard(
                 icon: Icons.grass,
-                title: 'Soil Health',
-                description: 'Analyze soil and get fertilizer advice',
+                title: l10n.soilHealth,
+                description: l10n.soilHealthDesc,
                 color: AppColors.secondary,
                 onTap: () => context.pushWithSlide(const SoilHealthScreen()),
               )
@@ -239,8 +241,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
           FeatureCard(
                 icon: Icons.cloud,
-                title: 'Weather Forecast',
-                description: 'Check weather alerts and forecasts',
+                title: l10n.weatherForecast,
+                description: l10n.weatherForecastDesc,
                 color: AppColors.info,
                 onTap: () => context.pushWithSlide(const WeatherScreen()),
               )
@@ -251,8 +253,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
           FeatureCard(
                 icon: Icons.bug_report,
-                title: 'Pest Detection',
-                description: 'Identify pests and diseases from images',
+                title: l10n.pestDetection,
+                description: l10n.pestDetectionDesc,
                 color: AppColors.error,
                 onTap: () => context.pushWithSlide(const PestDetectionScreen()),
               )
@@ -263,8 +265,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
           FeatureCard(
                 icon: Icons.show_chart,
-                title: 'Market Prices',
-                description: 'Track crop prices and trends',
+                title: l10n.marketPrices,
+                description: l10n.marketPricesDesc,
                 color: AppColors.accent,
                 onTap: () => context.pushWithSlide(const MarketPricesScreen()),
               )

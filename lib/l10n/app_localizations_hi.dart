@@ -105,4 +105,56 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get close => 'बंद करें';
+
+  @override
+  String get welcomeBack => 'वापसी पर स्वागत है!';
+
+  @override
+  String get welcomeBackFarmer => 'वापसी पर स्वागत है, किसान!';
+
+  @override
+  String get howCanWeHelpYou => 'आज हम आपकी कैसे मदद कर सकते हैं?';
+
+  @override
+  String get quickActions => 'त्वरित कार्य';
+
+  @override
+  String get askAI => 'एआई से पूछें';
+
+  @override
+  String get scanPest => 'कीट स्कैन करें';
+
+  @override
+  String get features => 'सुविधाएं';
+
+  @override
+  String get cropAdvisory => 'फसल सलाह';
+
+  @override
+  String get cropAdvisoryDesc => 'व्यक्तिगत फसल सिफारिशें प्राप्त करें';
+
+  @override
+  String get soilHealth => 'मिट्टी स्वास्थ्य';
+
+  @override
+  String get soilHealthDesc =>
+      'मिट्टी का विश्लेषण करें और उर्वरक सलाह प्राप्त करें';
+
+  @override
+  String get weatherForecast => 'मौसम पूर्वानुमान';
+
+  @override
+  String get weatherForecastDesc => 'मौसम अलर्ट और पूर्वानुमान जांचें';
+
+  @override
+  String get pestDetection => 'कीट पहचान';
+
+  @override
+  String get pestDetectionDesc => 'छवियों से कीटों और बीमारियों की पहचान करें';
+
+  @override
+  String get marketPrices => 'बाजार मूल्य';
+
+  @override
+  String get marketPricesDesc => 'फसल की कीमतें और रुझान ट्रैक करें';
 }

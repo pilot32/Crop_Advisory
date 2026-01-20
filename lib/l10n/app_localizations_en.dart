@@ -104,4 +104,55 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get close => 'Close';
+
+  @override
+  String get welcomeBack => 'Welcome back!';
+
+  @override
+  String get welcomeBackFarmer => 'Welcome back, Farmer!';
+
+  @override
+  String get howCanWeHelpYou => 'How can we help you today?';
+
+  @override
+  String get quickActions => 'Quick Actions';
+
+  @override
+  String get askAI => 'Ask AI';
+
+  @override
+  String get scanPest => 'Scan Pest';
+
+  @override
+  String get features => 'Features';
+
+  @override
+  String get cropAdvisory => 'Crop Advisory';
+
+  @override
+  String get cropAdvisoryDesc => 'Get personalized crop recommendations';
+
+  @override
+  String get soilHealth => 'Soil Health';
+
+  @override
+  String get soilHealthDesc => 'Analyze soil and get fertilizer advice';
+
+  @override
+  String get weatherForecast => 'Weather Forecast';
+
+  @override
+  String get weatherForecastDesc => 'Check weather alerts and forecasts';
+
+  @override
+  String get pestDetection => 'Pest Detection';
+
+  @override
+  String get pestDetectionDesc => 'Identify pests and diseases from images';
+
+  @override
+  String get marketPrices => 'Market Prices';
+
+  @override
+  String get marketPricesDesc => 'Track crop prices and trends';
 }

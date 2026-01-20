@@ -289,6 +289,108 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Close'**
   String get close;
+
+  /// No description provided for @welcomeBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome back!'**
+  String get welcomeBack;
+
+  /// No description provided for @welcomeBackFarmer.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome back, Farmer!'**
+  String get welcomeBackFarmer;
+
+  /// No description provided for @howCanWeHelpYou.
+  ///
+  /// In en, this message translates to:
+  /// **'How can we help you today?'**
+  String get howCanWeHelpYou;
+
+  /// No description provided for @quickActions.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick Actions'**
+  String get quickActions;
+
+  /// No description provided for @askAI.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask AI'**
+  String get askAI;
+
+  /// No description provided for @scanPest.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan Pest'**
+  String get scanPest;
+
+  /// No description provided for @features.
+  ///
+  /// In en, this message translates to:
+  /// **'Features'**
+  String get features;
+
+  /// No description provided for @cropAdvisory.
+  ///
+  /// In en, this message translates to:
+  /// **'Crop Advisory'**
+  String get cropAdvisory;
+
+  /// No description provided for @cropAdvisoryDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Get personalized crop recommendations'**
+  String get cropAdvisoryDesc;
+
+  /// No description provided for @soilHealth.
+  ///
+  /// In en, this message translates to:
+  /// **'Soil Health'**
+  String get soilHealth;
+
+  /// No description provided for @soilHealthDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Analyze soil and get fertilizer advice'**
+  String get soilHealthDesc;
+
+  /// No description provided for @weatherForecast.
+  ///
+  /// In en, this message translates to:
+  /// **'Weather Forecast'**
+  String get weatherForecast;
+
+  /// No description provided for @weatherForecastDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Check weather alerts and forecasts'**
+  String get weatherForecastDesc;
+
+  /// No description provided for @pestDetection.
+  ///
+  /// In en, this message translates to:
+  /// **'Pest Detection'**
+  String get pestDetection;
+
+  /// No description provided for @pestDetectionDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Identify pests and diseases from images'**
+  String get pestDetectionDesc;
+
+  /// No description provided for @marketPrices.
+  ///
+  /// In en, this message translates to:
+  /// **'Market Prices'**
+  String get marketPrices;
+
+  /// No description provided for @marketPricesDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Track crop prices and trends'**
+  String get marketPricesDesc;
 }
 
 class _AppLocalizationsDelegate
