@@ -20,14 +20,14 @@ class ProfileScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Profile'),
+        title: Text(l10n.profile),
         actions: [
           IconButton(
             icon: const Icon(Icons.edit_outlined),
             onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Edit profile coming soon')),
-              );
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text(l10n.editProfile)));
             },
           ),
         ],
@@ -49,10 +49,10 @@ class ProfileScreen extends ConsumerWidget {
                   child: Icon(Icons.person, size: 50, color: AppColors.primary),
                 ),
                 const SizedBox(height: AppDimensions.paddingMD),
-                Text(user?.email ?? 'Guest User', style: AppTextStyles.h3),
+                Text(user?.email ?? l10n.guestUser, style: AppTextStyles.h3),
                 const SizedBox(height: AppDimensions.paddingSM),
                 Text(
-                  'Farmer',
+                  l10n.farmer,
                   style: AppTextStyles.body.copyWith(
                     color: AppColors.textSecondary,
                   ),
@@ -63,89 +63,89 @@ class ProfileScreen extends ConsumerWidget {
           const SizedBox(height: AppDimensions.paddingXL),
 
           // Account Section
-          _buildSectionTitle('Account'),
+          _buildSectionTitle(l10n.account),
           _buildListTile(
             icon: Icons.person_outline,
-            title: 'Personal Information',
-            subtitle: 'Manage your personal details',
+            title: l10n.personalInformation,
+            subtitle: l10n.managePersonalDetails,
             onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Feature coming soon')),
-              );
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text(l10n.featureComingSoon)));
             },
           ),
           _buildListTile(
             icon: Icons.agriculture_outlined,
-            title: 'Farm Details',
-            subtitle: 'Update your farm information',
+            title: l10n.farmDetails,
+            subtitle: l10n.updateFarmInformation,
             onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Feature coming soon')),
-              );
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text(l10n.featureComingSoon)));
             },
           ),
           const SizedBox(height: AppDimensions.paddingMD),
 
           // Preferences Section
-          _buildSectionTitle('Preferences'),
+          _buildSectionTitle(l10n.preferences),
           _buildListTile(
             icon: Icons.language_outlined,
-            title: 'Language',
-            subtitle: 'Change app language',
+            title: l10n.language,
+            subtitle: l10n.changeAppLanguage,
             onTap: () {
               Navigator.of(context).pushNamed(Routes.languageSelection);
             },
           ),
           _buildListTile(
             icon: Icons.notifications_outlined,
-            title: 'Notifications',
-            subtitle: 'Manage notification preferences',
+            title: l10n.notifications,
+            subtitle: l10n.manageNotificationPreferences,
             onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Feature coming soon')),
-              );
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text(l10n.featureComingSoon)));
             },
           ),
           _buildListTile(
             icon: Icons.dark_mode_outlined,
-            title: 'Theme',
-            subtitle: 'Choose app appearance',
+            title: l10n.theme,
+            subtitle: l10n.chooseAppAppearance,
             onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Feature coming soon')),
-              );
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text(l10n.featureComingSoon)));
             },
           ),
           const SizedBox(height: AppDimensions.paddingMD),
 
           // Support Section
-          _buildSectionTitle('Support'),
+          _buildSectionTitle(l10n.support),
           _buildListTile(
             icon: Icons.help_outline,
-            title: 'Help & Support',
-            subtitle: 'Get help with the app',
+            title: l10n.helpSupport,
+            subtitle: l10n.getHelpWithApp,
             onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Feature coming soon')),
-              );
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text(l10n.featureComingSoon)));
             },
           ),
           _buildListTile(
             icon: Icons.info_outline,
-            title: 'About',
-            subtitle: 'App version ${AppConstants.appVersion}',
+            title: l10n.about,
+            subtitle: '${l10n.appVersion} ${AppConstants.appVersion}',
             onTap: () {
-              _showAboutDialog(context);
+              _showAboutDialog(context, l10n);
             },
           ),
           _buildListTile(
             icon: Icons.privacy_tip_outlined,
-            title: 'Privacy Policy',
-            subtitle: 'Read our privacy policy',
+            title: l10n.privacyPolicy,
+            subtitle: l10n.readPrivacyPolicy,
             onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Feature coming soon')),
-              );
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text(l10n.featureComingSoon)));
             },
           ),
           const SizedBox(height: AppDimensions.paddingMD),
@@ -156,9 +156,10 @@ class ProfileScreen extends ConsumerWidget {
               vertical: AppDimensions.paddingMD,
             ),
             child: ElevatedButton.icon(
-              onPressed: () => _showLogoutConfirmation(context, authNotifier),
+              onPressed: () =>
+                  _showLogoutConfirmation(context, authNotifier, l10n),
               icon: const Icon(Icons.logout),
-              label: const Text('Logout'),
+              label: Text(l10n.logout),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.error,
                 foregroundColor: AppColors.textLight,
@@ -213,16 +214,20 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  void _showLogoutConfirmation(BuildContext context, authNotifier) {
+  void _showLogoutConfirmation(
+    BuildContext context,
+    authNotifier,
+    AppLocalizations l10n,
+  ) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Logout'),
-        content: const Text('Are you sure you want to logout?'),
+        title: Text(l10n.logoutConfirmTitle),
+        content: Text(l10n.logoutConfirmMessage),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           TextButton(
             onPressed: () async {
@@ -234,37 +239,34 @@ class ProfileScreen extends ConsumerWidget {
                 ).pushNamedAndRemoveUntil(Routes.login, (route) => false);
               }
             },
-            child: const Text('Logout'),
+            child: Text(l10n.logout),
           ),
         ],
       ),
     );
   }
 
-  void _showAboutDialog(BuildContext context) {
+  void _showAboutDialog(BuildContext context, AppLocalizations l10n) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('About Crop Advisory'),
+        title: Text(l10n.aboutCropAdvisory),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Version: ${AppConstants.appVersion}',
+              '${l10n.version}: ${AppConstants.appVersion}',
               style: AppTextStyles.body,
             ),
             const SizedBox(height: AppDimensions.paddingMD),
-            Text(
-              'A smart farming assistant powered by AI to help farmers make informed decisions.',
-              style: AppTextStyles.body,
-            ),
+            Text(l10n.aboutDescription, style: AppTextStyles.body),
           ],
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Close'),
+            child: Text(l10n.close),
           ),
         ],
       ),

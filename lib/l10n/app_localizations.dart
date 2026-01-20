@@ -163,6 +163,132 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Change app language'**
   String get changeAppLanguage;
+
+  /// No description provided for @editProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit profile coming soon'**
+  String get editProfile;
+
+  /// No description provided for @guestUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Guest User'**
+  String get guestUser;
+
+  /// No description provided for @farmer.
+  ///
+  /// In en, this message translates to:
+  /// **'Farmer'**
+  String get farmer;
+
+  /// No description provided for @personalInformation.
+  ///
+  /// In en, this message translates to:
+  /// **'Personal Information'**
+  String get personalInformation;
+
+  /// No description provided for @managePersonalDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage your personal details'**
+  String get managePersonalDetails;
+
+  /// No description provided for @farmDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Farm Details'**
+  String get farmDetails;
+
+  /// No description provided for @updateFarmInformation.
+  ///
+  /// In en, this message translates to:
+  /// **'Update your farm information'**
+  String get updateFarmInformation;
+
+  /// No description provided for @manageNotificationPreferences.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage notification preferences'**
+  String get manageNotificationPreferences;
+
+  /// No description provided for @chooseAppAppearance.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose app appearance'**
+  String get chooseAppAppearance;
+
+  /// No description provided for @getHelpWithApp.
+  ///
+  /// In en, this message translates to:
+  /// **'Get help with the app'**
+  String get getHelpWithApp;
+
+  /// No description provided for @support.
+  ///
+  /// In en, this message translates to:
+  /// **'Support'**
+  String get support;
+
+  /// No description provided for @appVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'App version'**
+  String get appVersion;
+
+  /// No description provided for @privacyPolicy.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy Policy'**
+  String get privacyPolicy;
+
+  /// No description provided for @readPrivacyPolicy.
+  ///
+  /// In en, this message translates to:
+  /// **'Read our privacy policy'**
+  String get readPrivacyPolicy;
+
+  /// No description provided for @featureComingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Feature coming soon'**
+  String get featureComingSoon;
+
+  /// No description provided for @logoutConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Logout'**
+  String get logoutConfirmTitle;
+
+  /// No description provided for @logoutConfirmMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to logout?'**
+  String get logoutConfirmMessage;
+
+  /// No description provided for @aboutCropAdvisory.
+  ///
+  /// In en, this message translates to:
+  /// **'About Crop Advisory'**
+  String get aboutCropAdvisory;
+
+  /// No description provided for @version.
+  ///
+  /// In en, this message translates to:
+  /// **'Version'**
+  String get version;
+
+  /// No description provided for @aboutDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'A smart farming assistant powered by AI to help farmers make informed decisions.'**
+  String get aboutDescription;
+
+  /// No description provided for @close.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get close;
 }
 
 class _AppLocalizationsDelegate

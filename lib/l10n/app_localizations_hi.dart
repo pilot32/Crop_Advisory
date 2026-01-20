@@ -40,4 +40,69 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get changeAppLanguage => 'ऐप की भाषा बदलें';
+
+  @override
+  String get editProfile => 'प्रोफ़ाइल संपादन जल्द आ रहा है';
+
+  @override
+  String get guestUser => 'अतिथि उपयोगकर्ता';
+
+  @override
+  String get farmer => 'किसान';
+
+  @override
+  String get personalInformation => 'व्यक्तिगत जानकारी';
+
+  @override
+  String get managePersonalDetails => 'अपने व्यक्तिगत विवरण प्रबंधित करें';
+
+  @override
+  String get farmDetails => 'खेत का विवरण';
+
+  @override
+  String get updateFarmInformation => 'अपनी खेत की जानकारी अपडेट करें';
+
+  @override
+  String get manageNotificationPreferences =>
+      'सूचना प्राथमिकताएं प्रबंधित करें';
+
+  @override
+  String get chooseAppAppearance => 'ऐप की दिखावट चुनें';
+
+  @override
+  String get getHelpWithApp => 'ऐप के साथ सहायता प्राप्त करें';
+
+  @override
+  String get support => 'सहायता';
+
+  @override
+  String get appVersion => 'ऐप संस्करण';
+
+  @override
+  String get privacyPolicy => 'गोपनीयता नीति';
+
+  @override
+  String get readPrivacyPolicy => 'हमारी गोपनीयता नीति पढ़ें';
+
+  @override
+  String get featureComingSoon => 'सुविधा जल्द आ रही है';
+
+  @override
+  String get logoutConfirmTitle => 'लॉगआउट';
+
+  @override
+  String get logoutConfirmMessage => 'क्या आप वाकई लॉगआउट करना चाहते हैं?';
+
+  @override
+  String get aboutCropAdvisory => 'क्रॉप एडवाइजरी के बारे में';
+
+  @override
+  String get version => 'संस्करण';
+
+  @override
+  String get aboutDescription =>
+      'एआई द्वारा संचालित एक स्मार्ट खेती सहायक जो किसानों को सूचित निर्णय लेने में मदद करता है।';
+
+  @override
+  String get close => 'बंद करें';
 }
