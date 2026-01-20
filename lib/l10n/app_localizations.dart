@@ -163,6 +163,234 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Change app language'**
   String get changeAppLanguage;
+
+  /// No description provided for @editProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit profile coming soon'**
+  String get editProfile;
+
+  /// No description provided for @guestUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Guest User'**
+  String get guestUser;
+
+  /// No description provided for @farmer.
+  ///
+  /// In en, this message translates to:
+  /// **'Farmer'**
+  String get farmer;
+
+  /// No description provided for @personalInformation.
+  ///
+  /// In en, this message translates to:
+  /// **'Personal Information'**
+  String get personalInformation;
+
+  /// No description provided for @managePersonalDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage your personal details'**
+  String get managePersonalDetails;
+
+  /// No description provided for @farmDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Farm Details'**
+  String get farmDetails;
+
+  /// No description provided for @updateFarmInformation.
+  ///
+  /// In en, this message translates to:
+  /// **'Update your farm information'**
+  String get updateFarmInformation;
+
+  /// No description provided for @manageNotificationPreferences.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage notification preferences'**
+  String get manageNotificationPreferences;
+
+  /// No description provided for @chooseAppAppearance.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose app appearance'**
+  String get chooseAppAppearance;
+
+  /// No description provided for @getHelpWithApp.
+  ///
+  /// In en, this message translates to:
+  /// **'Get help with the app'**
+  String get getHelpWithApp;
+
+  /// No description provided for @support.
+  ///
+  /// In en, this message translates to:
+  /// **'Support'**
+  String get support;
+
+  /// No description provided for @appVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'App version'**
+  String get appVersion;
+
+  /// No description provided for @privacyPolicy.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy Policy'**
+  String get privacyPolicy;
+
+  /// No description provided for @readPrivacyPolicy.
+  ///
+  /// In en, this message translates to:
+  /// **'Read our privacy policy'**
+  String get readPrivacyPolicy;
+
+  /// No description provided for @featureComingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Feature coming soon'**
+  String get featureComingSoon;
+
+  /// No description provided for @logoutConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Logout'**
+  String get logoutConfirmTitle;
+
+  /// No description provided for @logoutConfirmMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to logout?'**
+  String get logoutConfirmMessage;
+
+  /// No description provided for @aboutCropAdvisory.
+  ///
+  /// In en, this message translates to:
+  /// **'About Crop Advisory'**
+  String get aboutCropAdvisory;
+
+  /// No description provided for @version.
+  ///
+  /// In en, this message translates to:
+  /// **'Version'**
+  String get version;
+
+  /// No description provided for @aboutDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'A smart farming assistant powered by AI to help farmers make informed decisions.'**
+  String get aboutDescription;
+
+  /// No description provided for @close.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get close;
+
+  /// No description provided for @welcomeBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome back!'**
+  String get welcomeBack;
+
+  /// No description provided for @welcomeBackFarmer.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome back, Farmer!'**
+  String get welcomeBackFarmer;
+
+  /// No description provided for @howCanWeHelpYou.
+  ///
+  /// In en, this message translates to:
+  /// **'How can we help you today?'**
+  String get howCanWeHelpYou;
+
+  /// No description provided for @quickActions.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick Actions'**
+  String get quickActions;
+
+  /// No description provided for @askAI.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask AI'**
+  String get askAI;
+
+  /// No description provided for @scanPest.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan Pest'**
+  String get scanPest;
+
+  /// No description provided for @features.
+  ///
+  /// In en, this message translates to:
+  /// **'Features'**
+  String get features;
+
+  /// No description provided for @cropAdvisory.
+  ///
+  /// In en, this message translates to:
+  /// **'Crop Advisory'**
+  String get cropAdvisory;
+
+  /// No description provided for @cropAdvisoryDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Get personalized crop recommendations'**
+  String get cropAdvisoryDesc;
+
+  /// No description provided for @soilHealth.
+  ///
+  /// In en, this message translates to:
+  /// **'Soil Health'**
+  String get soilHealth;
+
+  /// No description provided for @soilHealthDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Analyze soil and get fertilizer advice'**
+  String get soilHealthDesc;
+
+  /// No description provided for @weatherForecast.
+  ///
+  /// In en, this message translates to:
+  /// **'Weather Forecast'**
+  String get weatherForecast;
+
+  /// No description provided for @weatherForecastDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Check weather alerts and forecasts'**
+  String get weatherForecastDesc;
+
+  /// No description provided for @pestDetection.
+  ///
+  /// In en, this message translates to:
+  /// **'Pest Detection'**
+  String get pestDetection;
+
+  /// No description provided for @pestDetectionDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Identify pests and diseases from images'**
+  String get pestDetectionDesc;
+
+  /// No description provided for @marketPrices.
+  ///
+  /// In en, this message translates to:
+  /// **'Market Prices'**
+  String get marketPrices;
+
+  /// No description provided for @marketPricesDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Track crop prices and trends'**
+  String get marketPricesDesc;
 }
 
 class _AppLocalizationsDelegate
