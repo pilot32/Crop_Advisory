@@ -1,5 +1,5 @@
 /// Login Screen
-/// 
+///
 /// User authentication screen with email/password and phone login options
 
 import 'package:flutter/material.dart';
@@ -36,10 +36,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     setState(() => _isLoading = true);
 
     try {
-      await ref.read(authProvider.notifier).signInWithEmail(
-        email: _emailController.text.trim(),
-        password: _passwordController.text,
-      );
+      await ref
+          .read(authProvider.notifier)
+          .signInWithEmail(
+            email: _emailController.text.trim(),
+            password: _passwordController.text,
+          );
 
       if (mounted) {
         // Navigate to home
@@ -73,15 +75,20 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 const SizedBox(height: AppDimensions.paddingXL * 2),
-                
+
                 // App Logo
-                Icon(
-                  Icons.agriculture,
-                  size: 80,
-                  color: AppColors.primary,
+                // Icon(
+                //   Icons.agriculture,
+                //   size: 80,
+                //   color: AppColors.primary,
+                // ),
+                Image.asset(
+                  'assets/images/LOgo_transperent.png',
+                  width: 150,
+                  height: 150,
                 ),
                 const SizedBox(height: AppDimensions.paddingLG),
-                
+
                 // Title
                 Text(
                   'Welcome Back',
@@ -89,16 +96,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: AppDimensions.paddingSM),
-                
+
                 Text(
-                  'Sign in to continue to ${AppConstants.appName}',
+                  'Sign in to continue ${AppConstants.appName}',
                   style: AppTextStyles.bodyMedium.copyWith(
                     color: AppColors.textSecondary,
                   ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: AppDimensions.paddingXL),
-                
+
                 // Email field
                 TextFormField(
                   controller: _emailController,
@@ -119,7 +126,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   },
                 ),
                 const SizedBox(height: AppDimensions.paddingMD),
-                
+
                 // Password field
                 TextFormField(
                   controller: _passwordController,
@@ -150,7 +157,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   },
                 ),
                 const SizedBox(height: AppDimensions.paddingSM),
-                
+
                 // Forgot password
                 Align(
                   alignment: Alignment.centerRight,
@@ -172,7 +179,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ),
                 ),
                 const SizedBox(height: AppDimensions.paddingLG),
-                
+
                 // Login button
                 ElevatedButton(
                   onPressed: _isLoading ? null : _handleLogin,
@@ -190,7 +197,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       : const Text('Sign In'),
                 ),
                 const SizedBox(height: AppDimensions.paddingLG),
-                
+
                 // Divider
                 Row(
                   children: [
@@ -210,22 +217,20 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ],
                 ),
                 const SizedBox(height: AppDimensions.paddingLG),
-                
+
                 // Phone login button
                 OutlinedButton.icon(
                   onPressed: () {
                     // TODO: Navigate to phone login
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Phone login coming soon'),
-                      ),
+                      const SnackBar(content: Text('Phone login coming soon')),
                     );
                   },
                   icon: const Icon(Icons.phone),
                   label: const Text('Sign in with Phone'),
                 ),
                 const SizedBox(height: AppDimensions.paddingXL),
-                
+
                 // Sign up link
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,

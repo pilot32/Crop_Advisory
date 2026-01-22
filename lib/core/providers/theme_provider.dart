@@ -9,7 +9,6 @@ const _themeKey = 'theme_mode';
 @riverpod
 class ThemeMode$ extends _$ThemeMode$ {
   SharedPreferences? _prefs;
-
   @override
   ThemeMode build() {
     _loadTheme();
