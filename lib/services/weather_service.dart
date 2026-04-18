@@ -147,6 +147,7 @@ class WeatherService {
   WeatherModel _parseWeatherData(Map<String, dynamic> data) {
     try {
       final main = data['main'] as Map<String, dynamic>;
+      
       final weather = (data['weather'] as List).first as Map<String, dynamic>;
       final wind = data['wind'] as Map<String, dynamic>;
 
