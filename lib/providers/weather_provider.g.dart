@@ -21,7 +21,7 @@ final weatherAlertsProvider = AutoDisposeProvider<List<WeatherAlert>>.internal(
 );
 
 typedef WeatherAlertsRef = AutoDisposeProviderRef<List<WeatherAlert>>;
-String _$currentWeatherHash() => r'9bf224b29db8305413c09bf9190026b23dc98966';
+String _$currentWeatherHash() => r'fd6c4d52b7358abb20f9eeba5d1dccaca8a50ae4';
 
 /// See also [CurrentWeather].
 @ProviderFor(CurrentWeather)
