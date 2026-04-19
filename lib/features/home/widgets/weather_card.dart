@@ -1,6 +1,7 @@
 /// Weather Card Widget
-/// 
+///
 /// Displays current weather information on home screen
+/// Uses Riverpod providers for data — no manual setState
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,92 +9,16 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'dart:ui';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/constants/app_constants.dart';
-import '../../../services/location_service.dart';
-import '../../../services/weather_service.dart';
 import '../../../core/utils/animated_page_route.dart';
 import '../../weather/screens/weather_screen.dart';
-
-class WeatherCard extends ConsumerStatefulWidget {
+//import '../../weather/providers/weather_provider.dart';
+import '../../../providers/weather_provider.dart';
+class WeatherCard extends ConsumerWidget {
   const WeatherCard({super.key});
 
   @override
-  ConsumerState<WeatherCard> createState() => _WeatherCardState();
-}
-
-class _WeatherCardState extends ConsumerState<WeatherCard> {
-  String _location = 'Fetching...';
-  double? _temperature;
-  int? _humidity;
-  double? _windSpeed;
-  String? _condition;
-  bool _isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _fetchWeather();
-  }
-
-  Future<void> _fetchWeather() async {
-    try {
-      final locationService = ref.read(locationServiceProvider);
-      final weatherService = ref.read(weatherServiceProvider);
-
-      // Get current position
-      final position = await locationService.getCurrentPosition();
-
-      // Get address
-      final address = await locationService.getFormattedAddress(
-        latitude: position.latitude,
-        longitude: position.longitude,
-      );
-
-      // Get weather
-      final weather = await weatherService.getCurrentWeather(
-        latitude: position.latitude,
-        longitude: position.longitude,
-      );
-
-      if (mounted) {
-        setState(() {
-          _location = address;
-          _temperature = weather.temperature;
-          _humidity = weather.humidity;
-          _windSpeed = weather.windSpeed;
-          _condition = weather.condition;
-          _isLoading = false;
-        });
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _location = 'Location unavailable';
-          _isLoading = false;
-        });
-      }
-    }
-  }
-
-  IconData _getWeatherIcon(String? condition) {
-    if (condition == null) return Icons.wb_sunny;
-    switch (condition.toLowerCase()) {
-      case 'clear':
-        return Icons.wb_sunny;
-      case 'clouds':
-        return Icons.wb_cloudy;
-      case 'rain':
-        return Icons.umbrella;
-      case 'thunderstorm':
-        return Icons.flash_on;
-      case 'snow':
-        return Icons.ac_unit;
-      default:
-        return Icons.wb_sunny;
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final weatherAsync = ref.watch(currentWeatherProvider);
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return GestureDetector(
@@ -143,9 +68,12 @@ class _WeatherCardState extends ConsumerState<WeatherCard> {
                 ),
                 borderRadius: BorderRadius.circular(AppDimensions.radiusXL),
               ),
-              child: _isLoading
-                  ? _buildLoadingSkeleton()
-                  : _buildWeatherContent(),
+              // ── State handling ──────────────────────────
+              child: weatherAsync.when(
+                loading: () => _buildLoadingSkeleton(),
+                error: (error, _) => _buildErrorState(error, ref),
+                data: (weather) => _buildWeatherContent(context, weather),
+              ),
             ),
           ),
         ),
@@ -153,6 +81,9 @@ class _WeatherCardState extends ConsumerState<WeatherCard> {
     );
   }
 
+  // ─────────────────────────────────────────────────────────────────────────
+  // Loading
+  // ─────────────────────────────────────────────────────────────────────────
   Widget _buildLoadingSkeleton() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -180,10 +111,68 @@ class _WeatherCardState extends ConsumerState<WeatherCard> {
         .shimmer(duration: 1500.ms, color: Colors.white.withOpacity(0.5));
   }
 
-  Widget _buildWeatherContent() {
+  // ─────────────────────────────────────────────────────────────────────────
+  // Error
+  // ─────────────────────────────────────────────────────────────────────────
+  Widget _buildErrorState(Object error, WidgetRef ref) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        Row(
+          children: [
+            const Icon(Icons.error_outline,
+                color: AppColors.textLight, size: 20),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                'Weather unavailable',
+                style: AppTextStyles.bodyMedium.copyWith(
+                  color: AppColors.textLight,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            IconButton(
+              icon: const Icon(Icons.refresh, color: AppColors.textLight),
+              onPressed: () =>
+                  ref.read(currentWeatherProvider.notifier).refresh(),
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(),
+            ),
+          ],
+        ),
+        const SizedBox(height: 4),
+        Text(
+          error.toString(),
+          style: AppTextStyles.bodySmall.copyWith(
+            color: AppColors.textLight.withOpacity(0.7),
+          ),
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+        ),
+      ],
+    );
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Weather Content — all variables from WeatherModel
+  // ─────────────────────────────────────────────────────────────────────────
+  Widget _buildWeatherContent(BuildContext context, dynamic weather) {
+    // ── Extract ALL variables from the model ──
+    final String location     = weather.location;
+    final double temperature  = weather.temperature;
+    final double feelsLike    = weather.feelsLike;
+    final String condition    = weather.condition;
+    final String? description = weather.description;
+    final int humidity        = weather.humidity;
+    final double windSpeed    = weather.windSpeed;
+    final double rainfall     = weather.rainfall;
+    final int uvIndex         = weather.uvIndex;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // ── Top row: location + icon ──
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -201,15 +190,13 @@ class _WeatherCardState extends ConsumerState<WeatherCard> {
                   const SizedBox(height: AppDimensions.paddingXS),
                   Row(
                     children: [
-                      Icon(
-                        Icons.location_on,
-                        color: AppColors.textLight,
-                        size: AppDimensions.iconSM,
-                      ),
+                      const Icon(Icons.location_on,
+                          color: AppColors.textLight,
+                          size: AppDimensions.iconSM),
                       const SizedBox(width: 4),
                       Flexible(
                         child: Text(
-                          _location,
+                          location,
                           style: AppTextStyles.bodySmall.copyWith(
                             color: AppColors.textLight,
                           ),
@@ -223,7 +210,7 @@ class _WeatherCardState extends ConsumerState<WeatherCard> {
               ),
             ),
             Icon(
-              _getWeatherIcon(_condition),
+              _getWeatherIcon(condition),
               color: AppColors.textLight,
               size: 56,
             )
@@ -233,7 +220,10 @@ class _WeatherCardState extends ConsumerState<WeatherCard> {
                 .shake(hz: 0.5, duration: 1000.ms),
           ],
         ),
+
         const SizedBox(height: AppDimensions.paddingLG),
+
+        // ── Temperature + condition ──
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.end,
@@ -242,7 +232,7 @@ class _WeatherCardState extends ConsumerState<WeatherCard> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  _temperature != null ? '${_temperature!.toStringAsFixed(1)}°C' : '--°C',
+                  '${temperature.toStringAsFixed(1)}°C',
                   style: AppTextStyles.h1.copyWith(
                     color: AppColors.textLight,
                     fontSize: 48,
@@ -250,50 +240,54 @@ class _WeatherCardState extends ConsumerState<WeatherCard> {
                   ),
                 ),
                 Text(
-                  _condition ?? 'Unknown',
+                  description ?? condition,
                   style: AppTextStyles.bodyLarge.copyWith(
                     color: AppColors.textLight.withOpacity(0.9),
                   ),
                 ),
+                const SizedBox(height: 2),
+                Text(
+                  'Feels like ${feelsLike.toStringAsFixed(1)}°C',
+                  style: AppTextStyles.bodySmall.copyWith(
+                    color: AppColors.textLight.withOpacity(0.7),
+                  ),
+                ),
               ],
             ),
+
+            // ── Right-side detail chips ──
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                _buildWeatherDetail(
-                  Icons.water_drop,
-                  _humidity != null ? '$_humidity%' : '--%',
-                ),
+                _buildWeatherDetail(Icons.water_drop, '$humidity%'),
                 const SizedBox(height: AppDimensions.paddingXS),
                 _buildWeatherDetail(
-                  Icons.air,
-                  _windSpeed != null ? '${_windSpeed!.toStringAsFixed(1)} m/s' : '-- m/s',
-                ),
+                    Icons.air, '${windSpeed.toStringAsFixed(1)} m/s'),
+                const SizedBox(height: AppDimensions.paddingXS),
+                _buildWeatherDetail(
+                    Icons.umbrella, '${rainfall} mm'),
+                const SizedBox(height: AppDimensions.paddingXS),
+                _buildWeatherDetail(Icons.wb_sunny, 'UV $uvIndex'),
               ],
             ),
           ],
         ),
+
         const SizedBox(height: AppDimensions.paddingMD),
+
+        // ── Tap to view more ──
         Container(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 12,
-            vertical: 8,
-          ),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(
             color: Colors.white.withOpacity(0.15),
             borderRadius: BorderRadius.circular(AppDimensions.radiusMD),
-            border: Border.all(
-              color: Colors.white.withOpacity(0.2),
-            ),
+            border: Border.all(color: Colors.white.withOpacity(0.2)),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(
-                Icons.touch_app,
-                color: AppColors.textLight,
-                size: 16,
-              ),
+              const Icon(Icons.touch_app,
+                  color: AppColors.textLight, size: 16),
               const SizedBox(width: 8),
               Text(
                 'Tap for detailed forecast',
@@ -311,10 +305,7 @@ class _WeatherCardState extends ConsumerState<WeatherCard> {
 
   Widget _buildWeatherDetail(IconData icon, String value) {
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 12,
-        vertical: 6,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.15),
         borderRadius: BorderRadius.circular(AppDimensions.radiusMD),
@@ -322,11 +313,7 @@ class _WeatherCardState extends ConsumerState<WeatherCard> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            icon,
-            color: AppColors.textLight,
-            size: AppDimensions.iconSM,
-          ),
+          Icon(icon, color: AppColors.textLight, size: AppDimensions.iconSM),
           const SizedBox(width: 6),
           Text(
             value,
@@ -338,5 +325,27 @@ class _WeatherCardState extends ConsumerState<WeatherCard> {
         ],
       ),
     );
+  }
+
+  IconData _getWeatherIcon(String condition) {
+    switch (condition.toLowerCase()) {
+      case 'clear':
+        return Icons.wb_sunny;
+      case 'clouds':
+        return Icons.wb_cloudy;
+      case 'rain':
+      case 'drizzle':
+        return Icons.umbrella;
+      case 'thunderstorm':
+        return Icons.flash_on;
+      case 'snow':
+        return Icons.ac_unit;
+      case 'mist':
+      case 'fog':
+      case 'haze':
+        return Icons.cloud_queue;
+      default:
+        return Icons.wb_sunny;
+    }
   }
 }

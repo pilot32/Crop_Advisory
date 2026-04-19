@@ -86,6 +86,21 @@ void main() async {
         authFlowType: AuthFlowType.pkce,
       ),
     );
+
+    // Listen for auth state changes to ensure tokens are refreshed
+    Supabase.instance.client.auth.onAuthStateChange.listen((data) {
+      final AuthChangeEvent event = data.event;
+      final Session? session = data.session;
+      
+      // The Supabase SDK automatically handles token refresh when this listener is active.
+      // You can add routing logic here if you want to force users to the login screen 
+      // if their session expires while using the app.
+      if (event == AuthChangeEvent.signedOut) {
+        logger.i('User signed out');
+      } else if (event == AuthChangeEvent.tokenRefreshed) {
+        logger.i('Auth token refreshed successfully');
+      }
+    });
     logger.i('Supabase initialized successfully');
 
     // Set system UI overlay style
@@ -255,17 +270,20 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
       final prefs = await SharedPreferences.getInstance();
       final onboardingCompleted =
           prefs.getBool(StorageKeys.onboardingCompleted) ?? false;
+      final hasActiveSession = Supabase.instance.client.auth.currentSession != null;
 
       logger.i('App initialization completed');
 
       // Navigate to appropriate screen
       if (mounted) {
-        if (onboardingCompleted) {
-          // TODO: Check auth state and navigate to home or login
-          Navigator.of(context).pushReplacementNamed(Routes.login);
-        } else {
+        if (!onboardingCompleted) {
           // Show onboarding for first-time users
           Navigator.of(context).pushReplacementNamed(Routes.onboarding);
+        } else if (hasActiveSession) {
+          // Restore the last signed-in user session
+          Navigator.of(context).pushReplacementNamed(Routes.home);
+        } else {
+          Navigator.of(context).pushReplacementNamed(Routes.login);
         }
       }
     } catch (e) {
