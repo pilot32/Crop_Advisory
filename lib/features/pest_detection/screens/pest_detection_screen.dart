@@ -1,12 +1,14 @@
 /// Pest Detection Screen
-/// 
+///
 /// Upload and analyze images for pest and disease detection
 
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/constants/app_constants.dart';
+import '../../../providers/pest_detection_provider.dart';
 
 class PestDetectionScreen extends ConsumerStatefulWidget {
   const PestDetectionScreen({super.key});
@@ -16,29 +18,35 @@ class PestDetectionScreen extends ConsumerStatefulWidget {
 }
 
 class _PestDetectionScreenState extends ConsumerState<PestDetectionScreen> {
-  final ImagePicker _picker = ImagePicker();
-  XFile? _selectedImage;
-
   Future<void> _pickImage(ImageSource source) async {
-    try {
-      final XFile? image = await _picker.pickImage(source: source);
-      if (image != null) {
-        setState(() => _selectedImage = image);
-        // TODO: Integrate with Gemini vision API
-        _showAnalysisDialog();
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error picking image: $e')),
-      );
+    // Let the provider handle picking the image
+    await ref.read(pestDetectionProvider.notifier).pickImage(source);
+    
+    // Automatically trigger analysis if an image was selected
+    if (ref.read(pestDetectionProvider).selectedImage != null) {
+      ref.read(pestDetectionProvider.notifier).analyzeImage();
     }
+  }
+
+  void _reset() {
+    ref.read(pestDetectionProvider.notifier).reset();
   }
 
   @override
   Widget build(BuildContext context) {
+    final state = ref.watch(pestDetectionProvider);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Pest Detection'),
+        actions: [
+          if (state.selectedImage != null)
+            IconButton(
+              icon: const Icon(Icons.refresh),
+              onPressed: _reset,
+              tooltip: 'Reset',
+            ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(AppDimensions.paddingMD),
@@ -56,12 +64,80 @@ class _PestDetectionScreenState extends ConsumerState<PestDetectionScreen> {
             ),
             const SizedBox(height: AppDimensions.paddingXL),
 
-            // Image Upload Options
+            // ========== IMAGE PREVIEW ==========
+            if (state.selectedImage != null) ...[
+              Container(
+                height: 220,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(AppDimensions.radiusLG),
+                  border: Border.all(color: AppColors.primary.withOpacity(0.3)),
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(AppDimensions.radiusLG),
+                  child: Image.file(
+                    File(state.selectedImage!.path),
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
+              const SizedBox(height: AppDimensions.paddingMD),
+
+              // ========== LOADING STATE ==========
+              if (state.isAnalyzing) ...[
+                const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(AppDimensions.paddingXL),
+                    child: Column(
+                      children: [
+                        CircularProgressIndicator(),
+                        SizedBox(height: AppDimensions.paddingMD),
+                        Text('Analyzing your plant image...'),
+                      ],
+                    ),
+                  ),
+                ),
+              ]
+
+              // ========== ERROR STATE ==========
+              else if (state.errorMessage != null) ...[
+                Container(
+                  padding: const EdgeInsets.all(AppDimensions.paddingMD),
+                  decoration: BoxDecoration(
+                    color: AppColors.error.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(AppDimensions.radiusMD),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.error_outline, color: AppColors.error),
+                      const SizedBox(width: AppDimensions.paddingSM),
+                      Expanded(
+                        child: Text(
+                          state.errorMessage!,
+                          style: AppTextStyles.body.copyWith(color: AppColors.error),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: AppDimensions.paddingMD),
+              ]
+
+              // ========== RESULT DISPLAY ==========
+              else if (state.detectionResult != null) ...[
+                _buildResultCard(state.detectionResult!),
+                const SizedBox(height: AppDimensions.paddingMD),
+              ],
+
+              const SizedBox(height: AppDimensions.paddingSM),
+            ],
+
+            // ========== PICK BUTTONS ==========
             Row(
               children: [
                 Expanded(
                   child: ElevatedButton.icon(
-                    onPressed: () => _pickImage(ImageSource.camera),
+                    onPressed: state.isAnalyzing ? null : () => _pickImage(ImageSource.camera),
                     icon: const Icon(Icons.camera_alt),
                     label: const Text('Take Photo'),
                     style: ElevatedButton.styleFrom(
@@ -72,7 +148,7 @@ class _PestDetectionScreenState extends ConsumerState<PestDetectionScreen> {
                 const SizedBox(width: AppDimensions.paddingMD),
                 Expanded(
                   child: OutlinedButton.icon(
-                    onPressed: () => _pickImage(ImageSource.gallery),
+                    onPressed: state.isAnalyzing ? null : () => _pickImage(ImageSource.gallery),
                     icon: const Icon(Icons.photo_library),
                     label: const Text('Gallery'),
                     style: OutlinedButton.styleFrom(
@@ -108,6 +184,150 @@ class _PestDetectionScreenState extends ConsumerState<PestDetectionScreen> {
     );
   }
 
+  // ========== REAL RESULT CARD (replaces hardcoded dialog) ==========
+  Widget _buildResultCard(result) {
+    // Extract values safely
+    final name = result.pestOrDiseaseName ?? 'Unknown';
+    final confidence = result.confidence ?? 0.0;
+    final severity = result.severity ?? 'Unknown';
+    final description = result.description ?? 'No description available';
+    final symptoms = result.symptoms ?? [];
+    final treatments = result.treatments ?? [];
+
+    // Severity color
+    Color severityColor;
+    switch (severity.toLowerCase()) {
+      case 'high':
+        severityColor = AppColors.error;
+        break;
+      case 'medium':
+        severityColor = Colors.orange;
+        break;
+      default:
+        severityColor = AppColors.success;
+    }
+
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppDimensions.radiusLG),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(AppDimensions.paddingMD),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Disease name + confidence
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Text(
+                    name,
+                    style: AppTextStyles.h4.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppDimensions.paddingSM,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: severityColor.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(AppDimensions.radiusSM),
+                  ),
+                  child: Text(
+                    '${(confidence * 100).toStringAsFixed(1)}%',
+                    style: AppTextStyles.caption.copyWith(
+                      color: severityColor,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: AppDimensions.paddingSM),
+
+            // Severity badge
+            Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppDimensions.paddingSM,
+                vertical: 4,
+              ),
+              decoration: BoxDecoration(
+                color: severityColor,
+                borderRadius: BorderRadius.circular(AppDimensions.radiusSM),
+              ),
+              child: Text(
+                'Severity: $severity',
+                style: AppTextStyles.caption.copyWith(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            const SizedBox(height: AppDimensions.paddingMD),
+
+            // Description
+            Text('Description', style: AppTextStyles.bodyLarge),
+            const SizedBox(height: 4),
+            Text(description, style: AppTextStyles.body.copyWith(
+              color: AppColors.textSecondary,
+            )),
+            const SizedBox(height: AppDimensions.paddingMD),
+
+            // Symptoms
+            if (symptoms.isNotEmpty) ...[
+              Text('Symptoms', style: AppTextStyles.bodyLarge),
+              const SizedBox(height: 4),
+              ...symptoms.map((s) => Padding(
+                padding: const EdgeInsets.only(bottom: 4),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('• ', style: AppTextStyles.body),
+                    Expanded(child: Text(s, style: AppTextStyles.body)),
+                  ],
+                ),
+              )),
+              const SizedBox(height: AppDimensions.paddingMD),
+            ],
+
+            // Treatments
+            if (treatments.isNotEmpty) ...[
+              Text('Recommended Treatment', style: AppTextStyles.bodyLarge),
+              const SizedBox(height: 4),
+              ...treatments.map((t) => Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Container(
+                  padding: const EdgeInsets.all(AppDimensions.paddingSM),
+                  decoration: BoxDecoration(
+                    color: AppColors.success.withOpacity(0.08),
+                    borderRadius: BorderRadius.circular(AppDimensions.radiusMD),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(t.name ?? '', style: AppTextStyles.body.copyWith(
+                        fontWeight: FontWeight.w600,
+                      )),
+                      if (t.description != null)
+                        Text(t.description!, style: AppTextStyles.caption.copyWith(
+                          color: AppColors.textSecondary,
+                        )),
+                    ],
+                  ),
+                ),
+              )),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildPestCard({
     required String title,
     required String description,
@@ -126,47 +346,6 @@ class _PestDetectionScreenState extends ConsumerState<PestDetectionScreen> {
         ),
         title: Text(title),
         subtitle: Text(description),
-      ),
-    );
-  }
-
-  void _showAnalysisDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Analysis Result'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Detected: Aphid Infestation',
-              style: AppTextStyles.bodyLarge.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: AppDimensions.paddingMD),
-            const Text('Recommended Treatment:'),
-            const SizedBox(height: AppDimensions.paddingSM),
-            const Text('• Use neem oil spray'),
-            const Text('• Apply insecticidal soap'),
-            const Text('• Introduce ladybugs'),
-            const SizedBox(height: AppDimensions.paddingMD),
-            Text(
-              'Note: This is a demo. AI integration coming soon!',
-              style: AppTextStyles.caption.copyWith(
-                color: AppColors.info,
-                fontStyle: FontStyle.italic,
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Close'),
-          ),
-        ],
       ),
     );
   }
