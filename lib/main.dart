@@ -16,7 +16,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:logger/logger.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'l10n/app_localizations.dart';
-
+import 'services/biometric_service.dart';
 import 'core/config/env_config.dart';
 import 'core/theme/app_theme.dart';
 import 'core/constants/app_constants.dart';
@@ -282,9 +282,43 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
           // Restore the last signed-in user session
           Navigator.of(context).pushReplacementNamed(Routes.home);
         } else {
-          Navigator.of(context).pushReplacementNamed(Routes.login);
-        }
-      }
+          // No active session — try biometric quick-login
+          final bioService = BiometricService();
+          final canAuth = await bioService.canAuthenticate();
+          final isEnabled = await bioService.isEnabled();
+
+          if (canAuth && isEnabled) {
+            // Show biometric prompt
+            final authenticated = await bioService.authenticate(
+              reason: 'Scan your fingerprint to login',
+            );
+
+            if (authenticated && mounted) {
+              final creds = await bioService.getCredentials();
+              if (creds != null) {
+                try {
+                  // Sign in silently with stored credentials
+                  await Supabase.instance.client.auth.signInWithPassword(
+                    email: creds['email']!,
+                    password: creds['password']!,
+                  );
+                  if (mounted) {
+                    Navigator.of(context).pushReplacementNamed(Routes.home);
+                  }
+                  return;
+                } catch (e) {
+                  logger.e('Biometric auto-login failed: $e');
+                  // Fall through to login screen
+                }
+              }
+            }
+          }
+
+          // Fall back to normal login
+          if (mounted) {
+            Navigator.of(context).pushReplacementNamed(Routes.login);
+          }
+        }}
     } catch (e) {
       logger.e('Error during app initialization: $e');
     }
