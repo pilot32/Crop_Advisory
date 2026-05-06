@@ -20,7 +20,6 @@ import 'l10n/app_localizations.dart';
 import 'core/config/env_config.dart';
 import 'core/theme/app_theme.dart';
 import 'core/constants/app_constants.dart';
-import 'core/providers/theme_provider.dart';
 import 'core/providers/language_provider.dart';
 import 'features/auth/screens/login_screen.dart';
 import 'features/onboarding/screens/language_selection_screen.dart';
