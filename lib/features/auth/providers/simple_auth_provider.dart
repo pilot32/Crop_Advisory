@@ -50,11 +50,11 @@ class AuthNotifier extends StateNotifier<AsyncValue<void>> {
       // Create user profile in database
       if (response.user != null) {
         await _supabase.from(DatabaseConstants.farmerProfilesTable).insert({
-          'id': response.user!.id,
-          'email': email,
+          'user_id': response.user!.id,
+          //'email': email,
           'full_name': fullName,
           'phone_number': phoneNumber,
-          'created_at': DateTime.now().toIso8601String(),
+          //'created_at': DateTime.now().toIso8601String(),
         });
       }
     });
