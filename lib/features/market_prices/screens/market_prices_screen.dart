@@ -15,8 +15,6 @@ import 'package:intl/intl.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../providers/market_price_provider.dart';
-import '../../../services/gemini_service.dart';
-import '../../../services/market_price_service.dart';
 import '../../../models/market_price_model.dart';
 
 class MarketPricesScreen extends ConsumerStatefulWidget {
@@ -242,7 +240,6 @@ class _MarketPricesScreenState extends ConsumerState<MarketPricesScreen> {
     final prices = trend.priceHistory.map((p) => p.price).toList();
     final minPrice = prices.reduce((a, b) => a < b ? a : b);
     final maxPrice = prices.reduce((a, b) => a > b ? a : b);
-    final range = maxPrice - minPrice;
     final chartHeight = 40.0;
 
     return SizedBox(
@@ -713,11 +710,11 @@ class _MarketPricesScreenState extends ConsumerState<MarketPricesScreen> {
                       '${price.district}, ${price.state}',
                       style: AppTextStyles.caption,
                     ),
-                    if (price.variety != null && price.variety != 'Common')
+                    if (price.variety != 'Common')
                       Padding(
                         padding: const EdgeInsets.only(top: 2),
                         child: Text(
-                          price.variety!,
+                          price.variety,
                           style: AppTextStyles.caption.copyWith(
                             color: AppColors.primary,
                           ),

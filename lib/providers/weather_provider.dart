@@ -1,4 +1,3 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../services/weather_service.dart';
 import '../models/weather_model.dart';
@@ -7,7 +6,6 @@ part 'weather_provider.g.dart';
 
 const _defaultLat = 19.0760;
 const _defaultLon = 72.8777;
-const _defaultCity = 'mumbai';
 
 @riverpod
 class CurrentWeather extends _$CurrentWeather {

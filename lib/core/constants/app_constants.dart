@@ -3,8 +3,6 @@
 /// This file contains all constant values used throughout the app.
 /// Including API endpoints, UI constants, strings, and configuration values.
 
-import 'package:flutter/material.dart';
-
 /// API related constants
 class ApiConstants {
   // Prevent instantiation

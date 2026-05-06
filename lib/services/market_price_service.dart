@@ -7,7 +7,6 @@
 import 'package:dio/dio.dart';
 import 'package:logger/logger.dart';
 import 'package:uuid/uuid.dart';
-import '../core/config/env_config.dart';
 import '../models/market_price_model.dart';
 
 /// Service class for market price operations
@@ -201,14 +200,6 @@ class MarketPriceService {
       final avgPrice =
           currentPrices.map((p) => p.modalPrice).reduce((a, b) => a + b) /
           currentPrices.length;
-
-      // Find min and max prices
-      final minPrice = currentPrices
-          .map((p) => p.minPrice)
-          .reduce((a, b) => a < b ? a : b);
-      final maxPrice = currentPrices
-          .map((p) => p.maxPrice)
-          .reduce((a, b) => a > b ? a : b);
 
       // Generate price history points (simulated trend based on min/max range)
       final priceHistory = <PricePoint>[];

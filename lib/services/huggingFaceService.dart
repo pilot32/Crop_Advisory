@@ -2,7 +2,6 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import '../models/pest_detection_model.dart';
-import '../core/config/env_config.dart';
 
 /// Hugging Face Inference API service for plant disease detection
 /// Uses MobileNetV2 model trained on PlantVillage dataset

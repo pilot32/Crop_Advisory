@@ -7,7 +7,6 @@ import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:logger/logger.dart';
-import 'dart:io' show Platform;
 
 part 'notification_service.g.dart';
 

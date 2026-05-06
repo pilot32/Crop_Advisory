@@ -2,7 +2,7 @@
 ///
 /// Upload and analyze images for pest and disease detection
 
-import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
@@ -75,10 +75,12 @@ class _PestDetectionScreenState extends ConsumerState<PestDetectionScreen> {
                 ),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(AppDimensions.radiusLG),
-                  child: Image.file(
-                    File(state.selectedImage!.path),
+                  child: Image.network(
+                    state.selectedImage!.path,
                     fit: BoxFit.cover,
-                  ),
+                     errorBuilder: (_, __, ___) => const Center(
+    child: Icon(Icons.broken_image, size: 48, color: Colors.grey),
+                  ),)
                 ),
               ),
               const SizedBox(height: AppDimensions.paddingMD),

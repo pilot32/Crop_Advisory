@@ -4,7 +4,6 @@
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../../../services/supabase_service.dart';
 import '../../../core/constants/app_constants.dart';
 
 /// Current user provider
@@ -49,7 +48,7 @@ class AuthNotifier extends StateNotifier<AsyncValue<void>> {
 
       // Create user profile in database
       if (response.user != null) {
-        await _supabase.from(DatabaseConstants.usersTable).insert({
+        await _supabase.from(DatabaseConstants.farmerProfilesTable).insert({
           'id': response.user!.id,
           'email': email,
           'full_name': fullName,

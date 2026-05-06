@@ -1,14 +1,13 @@
 /// Pest Detection Provider
 ///
 /// State management for plant disease detection
+/// TODO: Step 5 - Replace with TFLite on-device model
 
 import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:logger/logger.dart';
 import '../models/pest_detection_model.dart';
-import '../services/huggingFaceService.dart';
-import '../core/config/env_config.dart';
 
 final _logger = Logger();
 
@@ -46,10 +45,9 @@ class PestDetectionState {
 }
 
 class PestDetectionNotifier extends StateNotifier<PestDetectionState> {
-  final HuggingFaceService _hfService;
   final ImagePicker _picker = ImagePicker();
 
-  PestDetectionNotifier(this._hfService) : super(const PestDetectionState());
+  PestDetectionNotifier() : super(const PestDetectionState());
 
   /// Pick image from camera or gallery
   Future<void> pickImage(ImageSource source) async {
@@ -69,6 +67,7 @@ class PestDetectionNotifier extends StateNotifier<PestDetectionState> {
   }
 
   /// Analyze the selected image for diseases
+  /// TODO: Step 5 - Replace with TFLite inference
   Future<void> analyzeImage() async {
     if (state.selectedImage == null) {
       state = state.copyWith(errorMessage: 'Please select an image first');
@@ -78,8 +77,34 @@ class PestDetectionNotifier extends StateNotifier<PestDetectionState> {
     state = state.copyWith(isAnalyzing: true, clearError: true);
 
     try {
-      // Send image path directly — service handles reading bytes internally
-      final result = await _hfService.detectDisease(state.selectedImage!.path);
+      // Temporary placeholder until TFLite integration (Step 5)
+      await Future.delayed(const Duration(seconds: 2));
+
+      final result = PestDetectionModel(
+        id: '',
+        userId: '',
+        imageUrl: state.selectedImage!.path,
+        detectionResult: 'Healthy Plant',
+        pestOrDiseaseName: 'Healthy',
+        confidence: 0.85,
+        cropName: 'Unknown',
+        severity: 'None',
+        description:
+            'The plant appears healthy. Continue regular care and monitoring for early detection of any issues.',
+        symptoms: [
+          'Normal green leaf color',
+          'No spots, lesions, or discoloration',
+        ],
+        treatments: [
+          TreatmentRecommendation(
+            name: 'Continue regular watering',
+            description: 'Maintain consistent soil moisture',
+            method: 'cultural',
+          ),
+        ],
+        detectedAt: DateTime.now(),
+        createdAt: DateTime.now(),
+      );
 
       state = state.copyWith(isAnalyzing: false, detectionResult: result);
     } catch (e) {
@@ -97,15 +122,7 @@ class PestDetectionNotifier extends StateNotifier<PestDetectionState> {
   }
 }
 
-// Provides the HuggingFaceService instance with API key from env
-final huggingFaceServiceProvider = Provider<HuggingFaceService>((ref) {
-  final config = ref.watch(envConfigProvider);
-  return HuggingFaceService(apiKey: config.hfApiKey ?? '');
-});
-
-// Providers
 final pestDetectionProvider =
     StateNotifierProvider<PestDetectionNotifier, PestDetectionState>((ref) {
-      final hfService = ref.watch(huggingFaceServiceProvider);
-      return PestDetectionNotifier(hfService);
-    });
+  return PestDetectionNotifier();
+});
