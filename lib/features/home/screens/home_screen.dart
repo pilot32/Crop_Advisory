@@ -22,6 +22,7 @@ import '../../crop_advisory/screens/crop_advisory_screen.dart';
 import '../../soil_health/screens/soil_health_screen.dart';
 import '../../weather/screens/weather_screen.dart';
 import '../../market_prices/screens/market_prices_screen.dart';
+//import '../../../providers/weather_provider.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -138,7 +139,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         // Refresh weather data shown in WeatherCard
         ref.read(currentWeatherProvider.notifier).refresh();
          // Wait a brief moment for visual feedback
-         await Future.delayed(const Duration(seconds: 500));
+         await Future.delayed(const Duration(seconds: 1));
       },
 
 

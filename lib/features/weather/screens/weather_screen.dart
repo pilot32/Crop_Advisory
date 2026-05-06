@@ -1,7 +1,7 @@
 /// Weather Screen
 ///
 /// Displays weather forecast and farming alerts with real API data
-
+import 'package:shimmer/shimmer.dart';
 import 'package:crop_advisory/core/widgets/shimmer_box.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -419,66 +419,67 @@ class _WeatherCardSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(AppDimensions.paddingLG),
-        child: Column(
-          children: [
-            Row(
-              children: [
-                const ShimmerBox(width: 64, height: 64),
-                const SizedBox(width: AppDimensions.paddingMD),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
-                      ShimmerBox(width: 120, height: 16),
-                      SizedBox(height: 8),
-                      ShimmerBox(width: 80, height: 32),
-                      SizedBox(height: 4),
-                      ShimmerBox(width: 160, height: 14),
-                    ],
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Shimmer.fromColors(
+      baseColor: isDark ? Colors.grey[700]! : Colors.grey[300]!,
+      highlightColor: isDark ? Colors.grey[600]! : Colors.grey[100]!,
+      child: Card(
+        child: Padding(
+          padding: const EdgeInsets.all(AppDimensions.paddingLG),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  Container(
+                    width: 64,
+                    height: 64,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(32),
+                    ),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: AppDimensions.paddingMD),
-            const Divider(),
-            const SizedBox(height: AppDimensions.paddingSM),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: const [
-                Column(children: [
-                  ShimmerBox(width: 24, height: 24),
-                  SizedBox(height: 8),
-                  ShimmerBox(width: 40, height: 14),
-                  SizedBox(height: 4),
-                  ShimmerBox(width: 30, height: 10),
-                ]),
-                Column(children: [
-                  ShimmerBox(width: 24, height: 24),
-                  SizedBox(height: 8),
-                  ShimmerBox(width: 40, height: 14),
-                  SizedBox(height: 4),
-                  ShimmerBox(width: 30, height: 10),
-                ]),
-                Column(children: [
-                  ShimmerBox(width: 24, height: 24),
-                  SizedBox(height: 8),
-                  ShimmerBox(width: 40, height: 14),
-                  SizedBox(height: 4),
-                  ShimmerBox(width: 30, height: 10),
-                ]),
-                Column(children: [
-                  ShimmerBox(width: 24, height: 24),
-                  SizedBox(height: 8),
-                  ShimmerBox(width: 40, height: 14),
-                  SizedBox(height: 4),
-                  ShimmerBox(width: 30, height: 10),
-                ]),
-              ],
-            ),
-          ],
+                  const SizedBox(width: AppDimensions.paddingMD),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(width: 120, height: 16, color: Colors.grey[300]),
+                        const SizedBox(height: 8),
+                        Container(width: 80, height: 32, color: Colors.grey[300]),
+                        const SizedBox(height: 4),
+                        Container(width: 160, height: 14, color: Colors.grey[200]),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: AppDimensions.paddingMD),
+              const Divider(),
+              const SizedBox(height: AppDimensions.paddingSM),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: List.generate(4, (_) {
+                  return Column(
+                    children: [
+                      Container(
+                        width: 24,
+                        height: 24,
+                        decoration: BoxDecoration(
+                          color: Colors.grey[300],
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      const SizedBox(height: AppDimensions.paddingSM),
+                      Container(width: 40, height: 14, color: Colors.grey[300]),
+                      const SizedBox(height: 2),
+                      Container(width: 50, height: 10, color: Colors.grey[200]),
+                    ],
+                  );
+                }),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -490,8 +491,46 @@ class _ForecastSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: List.generate(5, (_) => const ShimmerListTile()),
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Shimmer.fromColors(
+      baseColor: isDark ? Colors.grey[700]! : Colors.grey[300]!,
+      highlightColor: isDark ? Colors.grey[600]! : Colors.grey[100]!,
+      child: Column(
+        children: List.generate(5, (_) {
+          return Card(
+            margin: const EdgeInsets.only(bottom: AppDimensions.paddingSM),
+            child: ListTile(
+              leading: Container(
+                width: 32,
+                height: 32,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(16),
+                ),
+              ),
+              title: Container(
+                width: 60,
+                height: 14,
+                color: Colors.grey[300],
+              ),
+              subtitle: Container(
+                width: 100,
+                height: 10,
+                color: Colors.grey[200],
+              ),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(width: 30, height: 14, color: Colors.grey[300]),
+                  const SizedBox(width: 8),
+                  Container(width: 30, height: 14, color: Colors.grey[200]),
+                ],
+              ),
+            ),
+          );
+        }),
+      ),
     );
   }
 }

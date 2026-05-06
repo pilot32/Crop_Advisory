@@ -8,7 +8,7 @@
 /// - AI-powered market advice via Gemini
 /// - Pull-to-refresh support
 /// - Responsive cards with min/max/modal prices
-
+import 'package:shimmer/shimmer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -498,69 +498,75 @@ class _MarketPricesScreenState extends ConsumerState<MarketPricesScreen> {
     );
   }
 
-  Widget _buildShimmerCard(int index) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: AppDimensions.paddingMD),
-      child: Padding(
-        padding: const EdgeInsets.all(AppDimensions.paddingMD),
-        child: Row(
-          children: [
-            Container(
-              width: 44,
-              height: 44,
-              decoration: BoxDecoration(
-                color: Colors.grey[200],
-                borderRadius: BorderRadius.circular(AppDimensions.radiusMD),
+    Widget _buildShimmerCard(int index) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Shimmer.fromColors(
+      baseColor: isDark ? Colors.grey[700]! : Colors.grey[300]!,
+      highlightColor: isDark ? Colors.grey[600]! : Colors.grey[100]!,
+      child: Card(
+        margin: const EdgeInsets.only(bottom: AppDimensions.paddingMD),
+        child: Padding(
+          padding: const EdgeInsets.all(AppDimensions.paddingMD),
+          child: Row(
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(AppDimensions.radiusMD),
+                ),
               ),
-            ),
-            const SizedBox(width: AppDimensions.paddingMD),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              const SizedBox(width: AppDimensions.paddingMD),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      width: 120,
+                      height: 14,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[300],
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Container(
+                      width: 80,
+                      height: 10,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[200],
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Container(
-                    width: 120,
+                    width: 60,
                     height: 14,
                     decoration: BoxDecoration(
-                      color: Colors.grey[200],
+                      color: Colors.grey[300],
                       borderRadius: BorderRadius.circular(4),
                     ),
                   ),
                   const SizedBox(height: 6),
                   Container(
-                    width: 80,
-                    height: 10,
+                    width: 40,
+                    height: 18,
                     decoration: BoxDecoration(
-                      color: Colors.grey[100],
-                      borderRadius: BorderRadius.circular(4),
+                      color: Colors.grey[200],
+                      borderRadius: BorderRadius.circular(AppDimensions.radiusSM),
                     ),
                   ),
                 ],
               ),
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Container(
-                  width: 60,
-                  height: 14,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[200],
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Container(
-                  width: 40,
-                  height: 18,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[100],
-                    borderRadius: BorderRadius.circular(AppDimensions.radiusSM),
-                  ),
-                ),
-              ],
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
