@@ -8,6 +8,8 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/constants/app_constants.dart';
 import '../providers/simple_auth_provider.dart';
 import 'register_screen.dart';
+import 'package:local_auth/local_auth.dart';
+import '../../../services/biometric_service.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -22,14 +24,30 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
   bool _isLoading = false;
-
+  bool _isBiometricAvailable = false;
+  bool _biometricJustEnabled = false;
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
+    @override
+  void initState() {
+    super.initState();
+    _checkBiometricAvailability();
+  }
 
+  Future<void> _checkBiometricAvailability() async {
+    final bioService = BiometricService();
+    final available = await bioService.canAuthenticate();
+    final enabled = await bioService.isEnabled();
+    if (mounted) {
+      setState(() {
+        _isBiometricAvailable = available && enabled;
+      });
+    }
+  }
   Future<void> _handleLogin() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -43,9 +61,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             password: _passwordController.text,
           );
 
-      if (mounted) {
-        // Navigate to home
-        Navigator.of(context).pushReplacementNamed(Routes.home);
+            if (mounted) {
+        // Ask user if they want to enable biometric login
+        if (!_biometricJustEnabled) {
+          _showEnableBiometricDialog(
+            _emailController.text.trim(),
+            _passwordController.text,
+          );
+        } else {
+          Navigator.of(context).pushReplacementNamed(Routes.home);
+        }
       }
     } catch (e) {
       if (mounted) {
@@ -62,7 +87,70 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       }
     }
   }
+  // Add the biometric login method and enable dialog
+    Future<void> _handleBiometricLogin() async {
+    setState(() => _isLoading = true);
 
+    try {
+      await ref.read(biometricAuthProvider.notifier).authenticateWithBiometrics();
+
+      if (mounted) {
+        Navigator.of(context).pushReplacementNamed(Routes.home);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Biometric login failed: ${e.toString()}'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  void _showEnableBiometricDialog(String email, String password) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        icon: const Icon(Icons.fingerprint, size: 40, color: Colors.green),
+        title: const Text('Enable Biometric Login?'),
+        content: const Text(
+          'You can use your fingerprint or face recognition to login '
+          'quickly next time without typing your password.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              Navigator.of(context).pushReplacementNamed(Routes.home);
+            },
+            child: const Text('Not Now'),
+          ),
+          FilledButton(
+            onPressed: () async {
+              Navigator.pop(ctx);
+              await ref.read(biometricAuthProvider.notifier).enableBiometric(
+                    email: email,
+                    password: password,
+                  );
+              if (mounted) {
+                setState(() => _isBiometricAvailable = true);
+              }
+              if (mounted) {
+                Navigator.of(context).pushReplacementNamed(Routes.home);
+              }
+            },
+            child: const Text('Enable'),
+          ),
+        ],
+      ),
+    );
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -199,6 +287,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 const SizedBox(height: AppDimensions.paddingLG),
 
                 // Divider
+                                // Divider
                 Row(
                   children: [
                     const Expanded(child: Divider()),
@@ -217,6 +306,26 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ],
                 ),
                 const SizedBox(height: AppDimensions.paddingLG),
+
+                // Biometric login button (only shown if available & enabled)
+                if (_isBiometricAvailable)
+                  Padding(
+                    padding: const EdgeInsets.only(
+                      bottom: AppDimensions.paddingLG,
+                    ),
+                    child: OutlinedButton.icon(
+                      onPressed: _isLoading ? null : _handleBiometricLogin,
+                      icon: const Icon(Icons.fingerprint),
+                      label: const Text('Login with Biometrics'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppColors.success,
+                        side: const BorderSide(color: AppColors.success),
+                      ),
+                    ),
+                  ),
+
+                // Phone login button
+                
 
                 // Phone login button
                 OutlinedButton.icon(
