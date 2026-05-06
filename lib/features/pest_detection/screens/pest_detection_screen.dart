@@ -3,6 +3,7 @@
 /// Upload and analyze images for pest and disease detection
 
 
+import 'package:crop_advisory/core/widgets/shimmer_box.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
@@ -86,7 +87,53 @@ class _PestDetectionScreenState extends ConsumerState<PestDetectionScreen> {
               const SizedBox(height: AppDimensions.paddingMD),
 
               // ========== LOADING STATE ==========
+                            // ========== LOADING STATE ==========
               if (state.isAnalyzing) ...[
+                Padding(
+                  padding: const EdgeInsets.all(AppDimensions.paddingLG),
+                  child: Column(
+                    children: [
+                      const LinearProgressIndicator(),
+                      const SizedBox(height: AppDimensions.paddingMD),
+                      Text(
+                        'Analyzing your plant image...',
+                        style: AppTextStyles.body.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                      const SizedBox(height: AppDimensions.paddingMD),
+                      // Shimmer skeleton for result preview
+                      Card(
+                        child: Padding(
+                          padding: const EdgeInsets.all(AppDimensions.paddingMD),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: const [
+                                  ShimmerBox(width: 150, height: 18),
+                                  ShimmerBox(width: 50, height: 24),
+                                ],
+                              ),
+                              const SizedBox(height: 12),
+                              const ShimmerBox(width: 80, height: 16),
+                              const SizedBox(height: 12),
+                              const ShimmerBox(width: double.infinity, height: 14),
+                              const SizedBox(height: 8),
+                              const ShimmerBox(width: double.infinity, height: 14),
+                              const SizedBox(height: 8),
+                              const ShimmerBox(width: 200, height: 14),
+                              const SizedBox(height: 16),
+                              const ShimmerBox(width: double.infinity, height: 60),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              
                 const Center(
                   child: Padding(
                     padding: EdgeInsets.all(AppDimensions.paddingXL),

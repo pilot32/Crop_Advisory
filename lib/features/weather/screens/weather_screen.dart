@@ -2,6 +2,7 @@
 ///
 /// Displays weather forecast and farming alerts with real API data
 
+import 'package:crop_advisory/core/widgets/shimmer_box.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_theme.dart';
@@ -425,32 +426,56 @@ class _WeatherCardSkeleton extends StatelessWidget {
           children: [
             Row(
               children: [
-                const SizedBox(
-                  width: 64,
-                  height: 64,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                ),
+                const ShimmerBox(width: 64, height: 64),
                 const SizedBox(width: AppDimensions.paddingMD),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        width: 120,
-                        height: 16,
-                        color: Colors.grey[300],
-                      ),
-                      const SizedBox(height: 8),
-                      Container(width: 80, height: 32, color: Colors.grey[300]),
-                      const SizedBox(height: 4),
-                      Container(
-                        width: 160,
-                        height: 14,
-                        color: Colors.grey[200],
-                      ),
+                    children: const [
+                      ShimmerBox(width: 120, height: 16),
+                      SizedBox(height: 8),
+                      ShimmerBox(width: 80, height: 32),
+                      SizedBox(height: 4),
+                      ShimmerBox(width: 160, height: 14),
                     ],
                   ),
                 ),
+              ],
+            ),
+            const SizedBox(height: AppDimensions.paddingMD),
+            const Divider(),
+            const SizedBox(height: AppDimensions.paddingSM),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: const [
+                Column(children: [
+                  ShimmerBox(width: 24, height: 24),
+                  SizedBox(height: 8),
+                  ShimmerBox(width: 40, height: 14),
+                  SizedBox(height: 4),
+                  ShimmerBox(width: 30, height: 10),
+                ]),
+                Column(children: [
+                  ShimmerBox(width: 24, height: 24),
+                  SizedBox(height: 8),
+                  ShimmerBox(width: 40, height: 14),
+                  SizedBox(height: 4),
+                  ShimmerBox(width: 30, height: 10),
+                ]),
+                Column(children: [
+                  ShimmerBox(width: 24, height: 24),
+                  SizedBox(height: 8),
+                  ShimmerBox(width: 40, height: 14),
+                  SizedBox(height: 4),
+                  ShimmerBox(width: 30, height: 10),
+                ]),
+                Column(children: [
+                  ShimmerBox(width: 24, height: 24),
+                  SizedBox(height: 8),
+                  ShimmerBox(width: 40, height: 14),
+                  SizedBox(height: 4),
+                  ShimmerBox(width: 30, height: 10),
+                ]),
               ],
             ),
           ],
@@ -466,27 +491,10 @@ class _ForecastSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      children: List.generate(3, (_) {
-        return Card(
-          margin: const EdgeInsets.only(bottom: AppDimensions.paddingSM),
-          child: const ListTile(
-            leading: SizedBox(
-              width: 32,
-              height: 32,
-              child: CircularProgressIndicator(strokeWidth: 2),
-            ),
-            title: SizedBox(
-              width: 60,
-              height: 14,
-              child: LinearProgressIndicator(),
-            ),
-          ),
-        );
-      }),
+      children: List.generate(5, (_) => const ShimmerListTile()),
     );
   }
 }
-
 class _ErrorCard extends StatelessWidget {
   final String message;
   final VoidCallback onRetry;
