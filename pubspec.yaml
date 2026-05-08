@@ -67,6 +67,7 @@ dependencies:
   flutter_secure_storage: ^9.2.2
   shimmer: ^3.0.0
   local_auth: ^2.3.0
+  google_fonts: ^8.1.0
 
 dev_dependencies:
   build_runner: ^2.4.8
@@ -92,6 +93,7 @@ flutter:
 
   # Assets
   assets:
+    - .env
     - assets/images/
     - assets/icons/
     - assets/translations/

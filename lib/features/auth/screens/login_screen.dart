@@ -25,7 +25,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   bool _obscurePassword = true;
   bool _isLoading = false;
   bool _isBiometricAvailable = false;
-  bool _biometricJustEnabled = false;
+
   @override
   void dispose() {
     _emailController.dispose();
@@ -61,14 +61,24 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             password: _passwordController.text,
           );
 
-            if (mounted) {
-        // Ask user if they want to enable biometric login
-        if (!_biometricJustEnabled) {
+      final authState = ref.read(authProvider);
+      if (authState.hasError) {
+        throw authState.error!;
+      }
+
+      if (mounted) {
+        // Check if biometric is available on device but not yet enabled
+        final bioService = BiometricService();
+        final canAuth = await bioService.canAuthenticate();
+        final isAlreadyEnabled = await bioService.isEnabled();
+
+        if (canAuth && !isAlreadyEnabled && mounted) {
+          // Offer to enable biometrics — both paths navigate home
           _showEnableBiometricDialog(
             _emailController.text.trim(),
             _passwordController.text,
           );
-        } else {
+        } else if (mounted) {
           Navigator.of(context).pushReplacementNamed(Routes.home);
         }
       }
@@ -87,12 +97,18 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       }
     }
   }
+
   // Add the biometric login method and enable dialog
     Future<void> _handleBiometricLogin() async {
     setState(() => _isLoading = true);
 
     try {
       await ref.read(biometricAuthProvider.notifier).authenticateWithBiometrics();
+
+      final bioState = ref.read(biometricAuthProvider);
+      if (bioState.hasError) {
+        throw bioState.error!;
+      }
 
       if (mounted) {
         Navigator.of(context).pushReplacementNamed(Routes.home);

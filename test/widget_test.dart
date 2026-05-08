@@ -18,5 +18,8 @@ void main() {
 
     // Verify that the app starts properly
     expect(find.byType(CircularProgressIndicator), findsOneWidget);
+
+    // Clear pending timers to fix the test timeout error
+    await tester.pump(const Duration(seconds: 3));
   });
 }
