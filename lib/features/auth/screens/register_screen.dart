@@ -65,8 +65,11 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Account created successfully! Please sign in.'),
+            content: Text(
+              '✅ Account created! Please check your email to confirm your account, then sign in.',
+            ),
             backgroundColor: AppColors.success,
+            duration: Duration(seconds: 5),
           ),
         );
         Navigator.of(context).pop();

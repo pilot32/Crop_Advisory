@@ -14,7 +14,9 @@ class ProfileScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final user = ref.watch(currentUserProvider);
+    final userAsync = ref.watch(currentUserProvider);
+    // Unwrap — treat loading/error as logged-out guest
+    final user = userAsync.whenOrNull(data: (u) => u);
     final authNotifier = ref.read(authProvider.notifier);
     final l10n = AppLocalizations.of(context)!;
 
@@ -50,6 +52,7 @@ class ProfileScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: AppDimensions.paddingMD),
                 Text(user?.email ?? l10n.guestUser, style: AppTextStyles.h3),
+
                 const SizedBox(height: AppDimensions.paddingSM),
                 Text(
                   l10n.farmer,

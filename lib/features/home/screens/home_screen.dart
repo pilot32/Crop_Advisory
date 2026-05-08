@@ -131,8 +131,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   Widget _buildHomeContent() {
-    final user = ref.watch(currentUserProvider);
+    final userAsync = ref.watch(currentUserProvider);
     final l10n = AppLocalizations.of(context)!;
+    // Unwrap the AsyncValue — treat loading/error as guest
+    final user = userAsync.whenOrNull(data: (u) => u);
 
     return RefreshIndicator(
       onRefresh: () async {
