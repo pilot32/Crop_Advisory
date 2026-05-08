@@ -7,11 +7,32 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../services/biometric_service.dart';
 
-/// Current user provider
-final currentUserProvider = Provider<User?>((ref) {
-  final supabase = Supabase.instance.client;
-  return supabase.auth.currentUser;
+// ============================================================================
+// REACTIVE AUTH STATE
+// A StreamProvider that reacts to Supabase auth state changes in real-time.
+// This replaces the broken static Provider<User?> that never re-evaluated.
+// ============================================================================
+
+/// Reactive current user provider — updates automatically on sign in/out.
+final currentUserProvider = StreamProvider<User?>((ref) {
+  return Supabase.instance.client.auth.onAuthStateChange.map((data) {
+    return data.session?.user;
+  });
 });
+
+/// Convenience provider: true if user is currently logged in.
+final isLoggedInProvider = Provider<bool>((ref) {
+  final userAsync = ref.watch(currentUserProvider);
+  return userAsync.when(
+    data: (user) => user != null,
+    loading: () => false,
+    error: (_, __) => false,
+  );
+});
+
+// ============================================================================
+// AUTH NOTIFIER — handles sign-up, sign-in, sign-out operations
+// ============================================================================
 
 /// Auth state provider
 final authStateProvider = StateNotifierProvider<AuthNotifier, AsyncValue<void>>((ref) {
@@ -24,7 +45,12 @@ class AuthNotifier extends StateNotifier<AsyncValue<void>> {
 
   final _supabase = Supabase.instance.client;
 
-  /// Sign up with email and password
+  /// Sign up with email and password.
+  ///
+  /// After successful signup, Supabase sends a confirmation email.
+  /// The farmer_profiles row is created automatically by a database trigger
+  /// (handle_new_user) — we do NOT insert it manually here to avoid
+  /// race conditions and RLS violations before the user confirms their email.
   Future<void> signUpWithEmail({
     required String email,
     required String password,
@@ -32,14 +58,15 @@ class AuthNotifier extends StateNotifier<AsyncValue<void>> {
     String? phoneNumber,
   }) async {
     state = const AsyncValue.loading();
-    
+
     state = await AsyncValue.guard(() async {
       final response = await _supabase.auth.signUp(
         email: email,
         password: password,
         data: {
           'full_name': fullName,
-          'phone_number': phoneNumber,
+          if (phoneNumber != null && phoneNumber.isNotEmpty)
+            'phone_number': phoneNumber,
         },
       );
 
@@ -47,33 +74,28 @@ class AuthNotifier extends StateNotifier<AsyncValue<void>> {
         throw Exception('Sign up failed. Please try again.');
       }
 
-      // Create user profile in database
-      if (response.user != null) {
-        await _supabase.from(DatabaseConstants.farmerProfilesTable).insert({
-          'user_id': response.user!.id,
-          //'email': email,
-          'full_name': fullName,
-          'phone_number': phoneNumber,
-          //'created_at': DateTime.now().toIso8601String(),
-        });
-      }
+      // Email confirmation is required; the user must verify their email
+      // before they can sign in. The farmer_profiles row is created by a
+      // Supabase trigger (handle_new_user) automatically on auth.users insert.
     });
   }
 
-  /// Sign in with email and password
+  /// Sign in with email and password.
+  ///
+  /// Throws on failure so the UI can display the error correctly.
   Future<void> signInWithEmail({
     required String email,
     required String password,
   }) async {
     state = const AsyncValue.loading();
-    
+
     state = await AsyncValue.guard(() async {
       final response = await _supabase.auth.signInWithPassword(
         email: email,
         password: password,
       );
 
-      if (response.user == null) {
+      if (response.user == null || response.session == null) {
         throw Exception('Sign in failed. Please check your credentials.');
       }
     });
@@ -82,7 +104,7 @@ class AuthNotifier extends StateNotifier<AsyncValue<void>> {
   /// Sign in with phone OTP
   Future<void> signInWithPhone(String phoneNumber) async {
     state = const AsyncValue.loading();
-    
+
     state = await AsyncValue.guard(() async {
       await _supabase.auth.signInWithOtp(phone: phoneNumber);
     });
@@ -94,7 +116,7 @@ class AuthNotifier extends StateNotifier<AsyncValue<void>> {
     required String otp,
   }) async {
     state = const AsyncValue.loading();
-    
+
     state = await AsyncValue.guard(() async {
       final response = await _supabase.auth.verifyOTP(
         phone: phoneNumber,
@@ -111,7 +133,7 @@ class AuthNotifier extends StateNotifier<AsyncValue<void>> {
   /// Sign out
   Future<void> signOut() async {
     state = const AsyncValue.loading();
-    
+
     state = await AsyncValue.guard(() async {
       await _supabase.auth.signOut();
     });
@@ -122,10 +144,16 @@ class AuthNotifier extends StateNotifier<AsyncValue<void>> {
     state = const AsyncValue.data(null);
   }
 }
+
+// ============================================================================
+// BIOMETRIC AUTH
+// ============================================================================
+
 /// Biometric service provider
 final biometricServiceProvider = Provider<BiometricService>((ref) {
   return BiometricService();
 });
+
 /// Biometric Auth Notifier
 ///
 /// Handles biometric login flow: authenticate → retrieve credentials → sign in
@@ -203,5 +231,6 @@ final biometricAuthProvider = StateNotifierProvider<BiometricAuthNotifier, Async
   final authNotifier = ref.watch(authStateProvider.notifier);
   return BiometricAuthNotifier(bioService, authNotifier);
 });
+
 /// Alias for compatibility
 final authProvider = authStateProvider;
