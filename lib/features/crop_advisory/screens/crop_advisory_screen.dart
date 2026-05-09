@@ -152,6 +152,12 @@ class _CropAdvisoryScreenState extends ConsumerState<CropAdvisoryScreen> {
               TextFormField(
                 controller: _locationController,
                 readOnly: _isListening,
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Please enter your location';
+                  }
+                  return null;
+                },
                 decoration: InputDecoration(
                   labelText: _isListening ? 'Listening...' : 'Location',
                   hintText: 'Enter your village/district or tap mic',
