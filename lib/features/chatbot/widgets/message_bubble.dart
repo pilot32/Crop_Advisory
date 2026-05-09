@@ -1,17 +1,14 @@
 /// Message Bubble Widget
 ///
 /// Displays a single chat message with appropriate styling
-/// Includes "Read Aloud" button for AI assistant messages
 
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../../../models/chat_message.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/constants/app_constants.dart';
-import '../../../providers/tts_provider.dart';
 
-class MessageBubble extends ConsumerWidget {
+class MessageBubble extends StatelessWidget {
   final ChatMessage message;
 
   const MessageBubble({
@@ -20,13 +17,10 @@ class MessageBubble extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final isUser = message.role == MessageRole.user;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final isAssistant = message.role == MessageRole.assistant && !message.isError;
     final timeFormat = DateFormat('HH:mm');
-    final tts = ref.watch(ttsServiceProvider);
-    final isSpeakingThis = ref.watch(currentTtsMessageProvider) == message.id;
 
     return Align(
       alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
@@ -60,9 +54,6 @@ class MessageBubble extends ConsumerWidget {
                     isUser ? AppDimensions.radiusSM : AppDimensions.radiusLG,
                   ),
                 ),
-                border: isSpeakingThis
-                    ? Border.all(color: AppColors.primary, width: 1.5)
-                    : null,
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withValues(alpha: 0.05),
@@ -74,7 +65,7 @@ class MessageBubble extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (isAssistant)
+                  if (!isUser && !message.isError)
                     Row(
                       children: [
                         Icon(
@@ -92,7 +83,7 @@ class MessageBubble extends ConsumerWidget {
                         ),
                       ],
                     ),
-                  if (isAssistant)
+                  if (!isUser && !message.isError)
                     const SizedBox(height: AppDimensions.paddingSM),
                   Text(
                     message.content,
@@ -108,65 +99,11 @@ class MessageBubble extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: AppDimensions.paddingXS),
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Read aloud button for AI messages
-                if (isAssistant) ...[
-                  InkWell(
-                    onTap: () async {
-                      if (isSpeakingThis) {
-                        await tts.stop();
-                        ref.read(currentTtsMessageProvider.notifier).state = null;
-                      } else {
-                        ref.read(currentTtsMessageProvider.notifier).state = message.id;
-                        await tts.speak(
-                          text: message.content,
-                          messageId: message.id,
-                        );
-                      }
-                    },
-                    borderRadius: BorderRadius.circular(12),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 6,
-                        vertical: 2,
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            isSpeakingThis
-                                ? Icons.stop_circle_outlined
-                                : Icons.volume_up_outlined,
-                            size: 14,
-                            color: isSpeakingThis
-                                ? AppColors.error
-                                : AppColors.primary,
-                          ),
-                          const SizedBox(width: 2),
-                          Text(
-                            isSpeakingThis ? 'Stop' : 'Read',
-                            style: AppTextStyles.caption.copyWith(
-                              color: isSpeakingThis
-                                  ? AppColors.error
-                                  : AppColors.primary,
-                              fontSize: 10,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: AppDimensions.paddingSM),
-                ],
-                Text(
-                  timeFormat.format(message.timestamp),
-                  style: AppTextStyles.caption.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
-                ),
-              ],
+            Text(
+              timeFormat.format(message.timestamp),
+              style: AppTextStyles.caption.copyWith(
+                color: AppColors.textSecondary,
+              ),
             ),
           ],
         ),

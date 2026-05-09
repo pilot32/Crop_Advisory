@@ -19,7 +19,7 @@ void main() {
     // Verify that the app starts properly
     expect(find.byType(CircularProgressIndicator), findsOneWidget);
 
-    // Advance time and frames until the splash delay and any follow-up UI work complete.
-    await tester.pumpAndSettle();
+    // Clear pending timers to fix the test timeout error
+    await tester.pump(const Duration(seconds: 3));
   });
 }

@@ -21,6 +21,7 @@ import '../../crop_advisory/screens/crop_advisory_screen.dart';
 import '../../soil_health/screens/soil_health_screen.dart';
 import '../../weather/screens/weather_screen.dart';
 import '../../market_prices/screens/market_prices_screen.dart';
+import '../../profile/screens/profile_screen.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -33,70 +34,60 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   int _selectedIndex = 0;
 
   void _handleNavigation(int index) {
-    if (index == _selectedIndex && index == 0) return;
+    if (index == _selectedIndex) return;
 
-    switch (index) {
-      case 0:
-        setState(() => _selectedIndex = 0);
-        break;
-      case 1:
-        Navigator.of(context).pushNamed(Routes.chatbot).then((_) {
-          setState(() => _selectedIndex = 0);
-        });
-        break;
-      case 2:
-        Navigator.of(context).pushNamed(Routes.cropAdvisory).then((_) {
-          setState(() => _selectedIndex = 0);
-        });
-        break;
-      case 3:
-        Navigator.of(context).pushNamed(Routes.marketPrices).then((_) {
-          setState(() => _selectedIndex = 0);
-        });
-        break;
-      case 4:
-        Navigator.of(context).pushNamed(Routes.profile).then((_) {
-          setState(() => _selectedIndex = 0);
-        });
-        break;
-    }
+    setState(() {
+      _selectedIndex = index;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          AppConstants.appName,
-          style: AppTextStyles.h4.copyWith(
-            fontWeight: FontWeight.bold,
-            color: Theme.of(context).textTheme.bodyLarge?.color,
-          ),
-        ),
-        elevation: 0,
-        actions: [
-          IconButton(
-            icon: Icon(
-              ref.watch(themeMode$Provider) == ThemeMode.dark
-                  ? Icons.light_mode
-                  : Icons.dark_mode,
-            ),
-            onPressed: () {
-              ref.read(themeMode$Provider.notifier).toggle();
-            },
-          ).animate().fadeIn(duration: 300.ms).scale(),
-          IconButton(
-            icon: const Icon(Icons.notifications_outlined),
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Notifications coming soon')),
-              );
-            },
-          ).animate().fadeIn(duration: 300.ms, delay: 100.ms).scale(),
-          const SizedBox(width: 8),
+      appBar: _selectedIndex == 0
+          ? AppBar(
+              title: Text(
+                AppConstants.appName,
+                style: AppTextStyles.h4.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).textTheme.bodyLarge?.color,
+                ),
+              ),
+              elevation: 0,
+              actions: [
+                IconButton(
+                  icon: Icon(
+                    ref.watch(themeMode$Provider) == ThemeMode.dark
+                        ? Icons.light_mode
+                        : Icons.dark_mode,
+                  ),
+                  onPressed: () {
+                    ref.read(themeMode$Provider.notifier).toggle();
+                  },
+                ).animate().fadeIn(duration: 300.ms).scale(),
+                IconButton(
+                  icon: const Icon(Icons.notifications_outlined),
+                  onPressed: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                          content: Text('Notifications coming soon')),
+                    );
+                  },
+                ).animate().fadeIn(duration: 300.ms, delay: 100.ms).scale(),
+                const SizedBox(width: 8),
+              ],
+            )
+          : null,
+      body: IndexedStack(
+        index: _selectedIndex,
+        children: const [
+          _HomeContent(),
+          ChatbotScreen(),
+          CropAdvisoryScreen(),
+          MarketPricesScreen(),
+          ProfileScreen(),
         ],
       ),
-      body: _buildHomeContent(),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: _handleNavigation,
@@ -131,8 +122,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       ),
     );
   }
+}
 
-  Widget _buildHomeContent() {
+class _HomeContent extends ConsumerWidget {
+  const _HomeContent();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
     final userAsync = ref.watch(currentUserProvider);
     final l10n = AppLocalizations.of(context)!;
     final textColor = Theme.of(context).textTheme.bodyLarge?.color;

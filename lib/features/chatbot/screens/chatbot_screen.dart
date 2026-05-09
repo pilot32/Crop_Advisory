@@ -2,7 +2,6 @@
 /// 
 /// Main screen for AI-powered agricultural advisory chatbot
 
-import 'package:crop_advisory/models/chat_message.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_theme.dart';
@@ -10,7 +9,6 @@ import '../../../core/constants/app_constants.dart';
 import '../providers/chatbot_provider.dart';
 import '../widgets/message_bubble.dart';
 import '../widgets/chat_input.dart';
-import '../../../providers/tts_provider.dart';
 
 class ChatbotScreen extends ConsumerStatefulWidget {
   const ChatbotScreen({super.key});
@@ -44,25 +42,9 @@ class _ChatbotScreenState extends ConsumerState<ChatbotScreen> {
 
   @override
   Widget build(BuildContext context) {
-     final tts = ref.read(ttsServiceProvider);
-    tts.onSpeakingStateChanged = (isSpeaking) {
-      ref.read(isTtsSpeakingProvider.notifier).state = isSpeaking;
-    };
-
     final messages = ref.watch(chatMessagesProvider);
     final chatNotifier = ref.read(chatMessagesProvider.notifier);
-  ref.listen(chatMessagesProvider, (previous, next) {
-      if (previous != null && next.length > previous.length) {
-        final lastMessage = next.last;
-        if (lastMessage.role == MessageRole.assistant && !lastMessage.isError) {
-          final autoRead = ref.read(autoReadEnabledProvider);
-          if (autoRead) {
-            final tts = ref.read(ttsServiceProvider);
-            ref.read(currentTtsMessageProvider.notifier).state = lastMessage.id;
-            tts.speak(text: lastMessage.content, messageId: lastMessage.id);
-          }
-        }
-      }});
+
     // Scroll to bottom when new messages arrive
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _scrollToBottom();
@@ -107,48 +89,6 @@ class _ChatbotScreenState extends ConsumerState<ChatbotScreen> {
           ],
         ),
         actions: [
-          // Auto-read toggle
-          Consumer(
-            builder: (context, ref, _) {
-              final autoRead = ref.watch(autoReadEnabledProvider);
-              final isSpeaking = ref.watch(isTtsSpeakingProvider);
-              final tts = ref.watch(ttsServiceProvider);
-
-              return IconButton(
-                icon: Icon(
-                  autoRead
-                      ? Icons.auto_stories
-                      : Icons.play_circle_outline,
-                  color: autoRead ? AppColors.primary : null,
-                ),
-                tooltip: autoRead
-                    ? 'Auto-read ON'
-                    : 'Auto-read OFF',
-                onPressed: () {
-                  ref.read(autoReadEnabledProvider.notifier).state = !autoRead;
-                  if (isSpeaking && !autoRead) {
-                    tts.stop();
-                  }
-                },
-              );
-            },
-          ),
-          // Stop all TTS button
-          Consumer(
-            builder: (context, ref, _) {
-              final isSpeaking = ref.watch(isTtsSpeakingProvider);
-              if (!isSpeaking) return const SizedBox.shrink();
-
-              return IconButton(
-                icon: const Icon(Icons.stop_circle_outlined, color: AppColors.error),
-                tooltip: 'Stop reading',
-                onPressed: () {
-                  ref.read(ttsServiceProvider).stop();
-                  ref.read(currentTtsMessageProvider.notifier).state = null;
-                },
-              );
-            },
-          ),
           PopupMenuButton<String>(
             onSelected: (value) {
               if (value == 'clear') {
