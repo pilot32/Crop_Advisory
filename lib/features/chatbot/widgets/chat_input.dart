@@ -85,20 +85,24 @@ class _ChatInputState extends State<ChatInput> {
           });
         },
         localeId: 'en_IN', // English (India)
-        listenMode: stt.ListenMode.confirmation,
+        listenOptions: stt.SpeechListenOptions(
+          listenMode: stt.ListenMode.confirmation,
+        ),
       );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       padding: const EdgeInsets.all(AppDimensions.paddingMD),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: Theme.of(context).cardTheme.color,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, -2),
           ),
@@ -111,8 +115,8 @@ class _ChatInputState extends State<ChatInput> {
             Container(
               decoration: BoxDecoration(
                 color: _isListening
-                    ? AppColors.error.withOpacity(0.1)
-                    : AppColors.primary.withOpacity(0.1),
+                    ? AppColors.error.withValues(alpha: 0.1)
+                    : AppColors.primary.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: IconButton(
@@ -130,7 +134,7 @@ class _ChatInputState extends State<ChatInput> {
                 .then()
                 .shimmer(
                   duration: 1500.ms,
-                  color: AppColors.error.withOpacity(0.5),
+                  color: AppColors.error.withValues(alpha: 0.5),
                 ),
             const SizedBox(width: AppDimensions.paddingSM),
             Expanded(
@@ -139,6 +143,7 @@ class _ChatInputState extends State<ChatInput> {
                 enabled: !widget.isProcessing && !_isListening,
                 maxLines: null,
                 textCapitalization: TextCapitalization.sentences,
+                style: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color),
                 decoration: InputDecoration(
                   hintText: _isListening
                       ? 'Listening...'
@@ -149,7 +154,7 @@ class _ChatInputState extends State<ChatInput> {
                         : AppColors.textSecondary,
                   ),
                   filled: true,
-                  fillColor: AppColors.background,
+                  fillColor: isDark ? const Color(0xFF1E1E1E) : AppColors.background,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(AppDimensions.radiusLG),
                     borderSide: BorderSide.none,
@@ -176,7 +181,7 @@ class _ChatInputState extends State<ChatInput> {
               decoration: BoxDecoration(
                 color: (_hasText && !widget.isProcessing)
                     ? AppColors.primary
-                    : AppColors.textSecondary.withOpacity(0.3),
+                    : AppColors.textSecondary.withValues(alpha: 0.3),
                 shape: BoxShape.circle,
               ),
               child: IconButton(
