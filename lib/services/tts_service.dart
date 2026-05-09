@@ -147,6 +147,9 @@ class TtsService{
   /// Dispose resources
   Future<void> dispose() async {
     await _tts.stop();
- await _tts.stop();
+    _isSpeaking = false;
+    _currentMessageId = null;
+    _currentText = null;
+    onSpeakingStateChanged?.call(false);
   }
 }
