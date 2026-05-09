@@ -4,8 +4,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:permission_handler/permission_handler.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/constants/app_constants.dart';
+import 'package:speech_to_text/speech_to_text.dart' as stt;
 
 class CropAdvisoryScreen extends ConsumerStatefulWidget {
   const CropAdvisoryScreen({super.key});
@@ -20,7 +22,9 @@ class _CropAdvisoryScreenState extends ConsumerState<CropAdvisoryScreen> {
   String? _selectedSeason;
   final TextEditingController _locationController = TextEditingController();
   final TextEditingController _previousCropController = TextEditingController();
-
+  final stt.SpeechToText _speech = stt.SpeechToText();
+  bool _isListening = false;
+  bool _speechAvailable = false;
   final List<String> _soilTypes = [
     'Alluvial Soil',
     'Black Soil',
@@ -37,12 +41,85 @@ class _CropAdvisoryScreenState extends ConsumerState<CropAdvisoryScreen> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    _initSpeech();
+  }
+
+  Future<void> _initSpeech() async {
+    final permission = await Permission.microphone.status;
+    if (!permission.isGranted) {
+      if (mounted) {
+        setState(() => _speechAvailable = false);
+      }
+      return;
+    }
+
+    final available = await _speech.initialize(
+      onStatus: (status) {
+        if (status == 'done' || status == 'notListening') {
+          if (mounted) setState(() => _isListening = false);
+        }
+      },
+      onError: (error) {
+        if (mounted) setState(() => _isListening = false);
+      },
+    );
+    if (mounted) setState(() => _speechAvailable = available);
+  }
+
+  @override
   void dispose() {
+    _speech.cancel();
     _locationController.dispose();
     _previousCropController.dispose();
     super.dispose();
   }
+  //toggle voice mode method to start and stop listening
+  Future<void> _toggleVoiceInput() async {
+    final permission = await Permission.microphone.request();
+    if (!permission.isGranted) {
+      if (permission.isPermanentlyDenied) {
+        await openAppSettings();
+      }
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Microphone permission is required for speech input')),
+        );
+      }
+      return;
+    }
 
+    if (!_speechAvailable) {
+      await _initSpeech();
+      if (!_speechAvailable) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Speech recognition not available on this device')),
+          );
+        }
+        return;
+      }
+    }
+
+    if (_isListening) {
+      await _speech.stop();
+      if (mounted) setState(() => _isListening = false);
+    } else {
+      if (mounted) setState(() => _isListening = true);
+      await _speech.listen(
+        onResult: (result) {
+          if (mounted) {
+            setState(() {
+              _locationController.text = result.recognizedWords;
+            });
+          }
+        },
+        localeId: 'en_IN',
+        listenMode: stt.ListenMode.confirmation,
+      );
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -71,19 +148,37 @@ class _CropAdvisoryScreenState extends ConsumerState<CropAdvisoryScreen> {
               const SizedBox(height: AppDimensions.paddingXL),
 
               // Location
+                            // Location
               TextFormField(
                 controller: _locationController,
-                decoration: const InputDecoration(
-                  labelText: 'Location',
-                  hintText: 'Enter your village/district',
-                  prefixIcon: Icon(Icons.location_on_outlined),
+                readOnly: _isListening,
+                decoration: InputDecoration(
+                  labelText: _isListening ? 'Listening...' : 'Location',
+                  hintText: 'Enter your village/district or tap mic',
+                  prefixIcon: const Icon(Icons.location_on_outlined),
+                  suffixIcon: IconButton(
+                    tooltip: _speechAvailable
+                        ? (_isListening ? 'Stop listening' : 'Start voice input')
+                        : 'Speech recognition unavailable',
+                    icon: Icon(
+                      _isListening ? Icons.mic : Icons.mic_none,
+                      color: _speechAvailable
+                          ? (_isListening ? AppColors.error : AppColors.primary)
+                          : AppColors.textHint,
+                    ),
+                    onPressed: _toggleVoiceInput,
+                  ),
+                  border: _isListening
+                      ? const OutlineInputBorder(
+                          borderSide: BorderSide(color: AppColors.error, width: 2),
+                        )
+                      : null,
+                  enabledBorder: _isListening
+                      ? const OutlineInputBorder(
+                          borderSide: BorderSide(color: AppColors.error, width: 2),
+                        )
+                      : null,
                 ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your location';
-                  }
-                  return null;
-                },
               ),
               const SizedBox(height: AppDimensions.paddingMD),
 
