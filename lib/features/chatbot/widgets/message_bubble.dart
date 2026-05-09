@@ -19,6 +19,7 @@ class MessageBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isUser = message.role == MessageRole.user;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final timeFormat = DateFormat('HH:mm');
 
     return Align(
@@ -41,8 +42,8 @@ class MessageBubble extends StatelessWidget {
                 color: isUser
                     ? AppColors.primary
                     : message.isError
-                        ? AppColors.error.withOpacity(0.1)
-                        : AppColors.surface,
+                        ? AppColors.error.withValues(alpha: 0.1)
+                        : (isDark ? const Color(0xFF2A2A2A) : AppColors.surface),
                 borderRadius: BorderRadius.only(
                   topLeft: const Radius.circular(AppDimensions.radiusLG),
                   topRight: const Radius.circular(AppDimensions.radiusLG),
@@ -55,7 +56,7 @@ class MessageBubble extends StatelessWidget {
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
+                    color: Colors.black.withValues(alpha: 0.05),
                     blurRadius: 4,
                     offset: const Offset(0, 2),
                   ),
@@ -91,7 +92,7 @@ class MessageBubble extends StatelessWidget {
                           ? AppColors.textLight
                           : message.isError
                               ? AppColors.error
-                              : AppColors.textPrimary,
+                              : (isDark ? AppColors.textLight : AppColors.textPrimary),
                     ),
                   ),
                 ],

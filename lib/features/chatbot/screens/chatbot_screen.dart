@@ -57,7 +57,7 @@ class _ChatbotScreenState extends ConsumerState<ChatbotScreen> {
             Container(
               padding: const EdgeInsets.all(AppDimensions.paddingSM),
               decoration: BoxDecoration(
-                color: AppColors.primary.withOpacity(0.1),
+                color: AppColors.primary.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(
@@ -67,15 +67,21 @@ class _ChatbotScreenState extends ConsumerState<ChatbotScreen> {
               ),
             ),
             const SizedBox(width: AppDimensions.paddingMD),
-            const Column(
+            Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('AI Assistant'),
+                Text(
+                  'AI Assistant',
+                  style: TextStyle(
+                    color: Theme.of(context).textTheme.bodyLarge?.color,
+                  ),
+                ),
                 Text(
                   'Online',
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.normal,
+                    color: Theme.of(context).textTheme.bodySmall?.color ?? AppColors.textSecondary,
                   ),
                 ),
               ],

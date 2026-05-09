@@ -68,7 +68,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       appBar: AppBar(
         title: Text(
           AppConstants.appName,
-          style: AppTextStyles.h4.copyWith(fontWeight: FontWeight.bold),
+          style: AppTextStyles.h4.copyWith(
+            fontWeight: FontWeight.bold,
+            color: Theme.of(context).textTheme.bodyLarge?.color,
+          ),
         ),
         elevation: 0,
         actions: [
@@ -132,6 +135,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Widget _buildHomeContent() {
     final userAsync = ref.watch(currentUserProvider);
     final l10n = AppLocalizations.of(context)!;
+    final textColor = Theme.of(context).textTheme.bodyLarge?.color;
 
     // We only care if the user is authenticated and has an email for the welcome message
     final bool hasUser = userAsync.when(
@@ -154,7 +158,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             // Welcome Section with animation
             Text(
               hasUser ? l10n.welcomeBackFarmer : l10n.welcomeBack,
-              style: AppTextStyles.h2,
+              style: AppTextStyles.h2.copyWith(color: textColor),
             ).animate().fadeIn(duration: 400.ms).slideX(begin: -0.2, end: 0),
             const SizedBox(height: AppDimensions.paddingXS),
             Text(
@@ -176,7 +180,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             const SizedBox(height: AppDimensions.paddingXL),
 
             // Quick Actions with animation
-            Text(l10n.quickActions, style: AppTextStyles.h4)
+            Text(l10n.quickActions, style: AppTextStyles.h4.copyWith(color: textColor))
                 .animate()
                 .fadeIn(duration: 400.ms, delay: 300.ms)
                 .slideX(begin: -0.2, end: 0),
@@ -221,7 +225,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             const SizedBox(height: AppDimensions.paddingXL),
 
             // Features Section with animation
-            Text(l10n.features, style: AppTextStyles.h4)
+            Text(l10n.features, style: AppTextStyles.h4.copyWith(color: textColor))
                 .animate()
                 .fadeIn(duration: 400.ms, delay: 600.ms)
                 .slideX(begin: -0.2, end: 0),

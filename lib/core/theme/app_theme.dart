@@ -54,10 +54,8 @@ class AppTextStyles {
   // Prevent instantiation
   AppTextStyles._();
 
-  // Typography Base
-  static final TextStyle _baseTextStyle = GoogleFonts.dmSans(
-    color: AppColors.textPrimary,
-  );
+  // Typography Base (no hardcoded color to allow theme inheritance)
+  static final TextStyle _baseTextStyle = GoogleFonts.dmSans();
 
   // Headings
   static final TextStyle h1 = _baseTextStyle.copyWith(
@@ -106,7 +104,6 @@ class AppTextStyles {
   static final TextStyle bodySmall = _baseTextStyle.copyWith(
     fontSize: 12,
     fontWeight: FontWeight.normal,
-    color: AppColors.textSecondary,
     height: 1.5,
   );
 
@@ -117,21 +114,18 @@ class AppTextStyles {
   static final TextStyle button = _baseTextStyle.copyWith(
     fontSize: 16,
     fontWeight: FontWeight.w600,
-    color: AppColors.textLight,
     letterSpacing: 0.5,
   );
 
   static final TextStyle caption = _baseTextStyle.copyWith(
     fontSize: 12,
     fontWeight: FontWeight.normal,
-    color: AppColors.textSecondary,
     height: 1.4,
   );
 
   static final TextStyle overline = _baseTextStyle.copyWith(
     fontSize: 10,
     fontWeight: FontWeight.w500,
-    color: AppColors.textSecondary,
     letterSpacing: 1.5,
   );
 }
@@ -145,19 +139,20 @@ class AppTheme {
   static ThemeData get lightTheme {
     return ThemeData(
       // Typography
-      textTheme: GoogleFonts.dmSansTextTheme(),
+      textTheme: GoogleFonts.dmSansTextTheme().apply(
+        bodyColor: AppColors.textPrimary,
+        displayColor: AppColors.textPrimary,
+      ),
 
       // Color scheme
       colorScheme: const ColorScheme.light(
         primary: AppColors.primary,
         secondary: AppColors.secondary,
         surface: AppColors.surface,
-        background: AppColors.background,
         error: AppColors.error,
         onPrimary: AppColors.textLight,
         onSecondary: AppColors.textLight,
         onSurface: AppColors.textPrimary,
-        onBackground: AppColors.textPrimary,
         onError: AppColors.textLight,
       ),
 
@@ -168,7 +163,7 @@ class AppTheme {
         elevation: 0,
         centerTitle: true,
         systemOverlayStyle: SystemUiOverlayStyle.dark,
-        titleTextStyle: AppTextStyles.h4,
+        titleTextStyle: AppTextStyles.h4.copyWith(color: AppColors.textPrimary),
         iconTheme: const IconThemeData(color: AppColors.textPrimary),
       ),
 
@@ -182,7 +177,7 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
-          textStyle: AppTextStyles.button,
+          textStyle: AppTextStyles.button.copyWith(color: AppColors.textLight),
         ),
       ),
 
@@ -288,19 +283,20 @@ class AppTheme {
   static ThemeData get darkTheme {
     return ThemeData(
       // Typography
-      textTheme: GoogleFonts.dmSansTextTheme(ThemeData.dark().textTheme),
+      textTheme: GoogleFonts.dmSansTextTheme(ThemeData.dark().textTheme).apply(
+        bodyColor: AppColors.textLight,
+        displayColor: AppColors.textLight,
+      ),
 
       // Color scheme
       colorScheme: const ColorScheme.dark(
         primary: AppColors.primaryLight,
         secondary: AppColors.secondaryLight,
         surface: AppColors.surfaceDark,
-        background: Color(0xFF121212),
         error: AppColors.error,
         onPrimary: AppColors.textPrimary,
         onSecondary: AppColors.textPrimary,
         onSurface: AppColors.textLight,
-        onBackground: AppColors.textLight,
         onError: AppColors.textLight,
       ),
 
@@ -312,6 +308,7 @@ class AppTheme {
         centerTitle: true,
         systemOverlayStyle: SystemUiOverlayStyle.light,
         titleTextStyle: AppTextStyles.h4.copyWith(color: AppColors.textLight),
+        iconTheme: const IconThemeData(color: AppColors.textLight),
       ),
 
       cardTheme: const CardThemeData(
@@ -322,6 +319,14 @@ class AppTheme {
         ),
         color: AppColors.surfaceDark,
         margin: EdgeInsets.all(8),
+      ),
+
+      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+        backgroundColor: Color(0xFF121212),
+        selectedItemColor: AppColors.primaryLight,
+        unselectedItemColor: AppColors.textSecondary,
+        type: BottomNavigationBarType.fixed,
+        elevation: 0,
       ),
 
       // Scaffold background
