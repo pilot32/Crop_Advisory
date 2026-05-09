@@ -112,7 +112,7 @@ class TtsService{
 
     bool get isSpeaking=> _isSpeaking;
 
-    String? get currenMessageId => _currentMessageId;
+    String? get currentMessageId => _currentMessageId;
     Future<void> setSpeechRate(double rate) async {
     await _tts.setSpeechRate(rate);
   }
