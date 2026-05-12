@@ -162,7 +162,7 @@ class _PestDetectionScreenState extends ConsumerState<PestDetectionScreen> {
     );
   }
 
-  Widget _buildImagePicker(PestDetectionState state, bool isDark, ThemeData theme) {
+  Widget _buildImagePicker(PestDetectionState _, bool isDark, ThemeData theme) {
     return GestureDetector(
       onTap: _pickImage,
       child: Container(
