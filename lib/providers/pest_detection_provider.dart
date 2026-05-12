@@ -3,8 +3,8 @@ import 'dart:typed_data';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image/image.dart' as img_lib;
 import 'package:logger/logger.dart';
-import '../../services/tflite_service.dart';
-import '../../services/gemini_pest_service.dart';
+import '../services/tflite_service.dart';
+import '../services/gemini_pest_service.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 
 final _logger = Logger();
