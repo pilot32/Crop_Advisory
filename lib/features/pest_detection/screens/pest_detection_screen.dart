@@ -1,14 +1,9 @@
-/// Pest Detection Screen
-///
-/// Upload and analyze images for pest and disease detection
-
-
-import 'package:crop_advisory/core/widgets/shimmer_box.dart';
+import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
-import '../../../core/theme/app_theme.dart';
-import '../../../core/constants/app_constants.dart';
+import 'package:shimmer/shimmer.dart';
 import '../../../providers/pest_detection_provider.dart';
 
 class PestDetectionScreen extends ConsumerStatefulWidget {
@@ -19,383 +14,485 @@ class PestDetectionScreen extends ConsumerStatefulWidget {
 }
 
 class _PestDetectionScreenState extends ConsumerState<PestDetectionScreen> {
-  Future<void> _pickImage(ImageSource source) async {
-    // Let the provider handle picking the image
-    await ref.read(pestDetectionProvider.notifier).pickImage(source);
-    
-    // Automatically trigger analysis if an image was selected
-    if (ref.read(pestDetectionProvider).selectedImage != null) {
-      ref.read(pestDetectionProvider.notifier).analyzeImage();
-    }
-  }
-
-  void _reset() {
-    ref.read(pestDetectionProvider.notifier).reset();
-  }
+  final ImagePicker _picker = ImagePicker();
+  Uint8List? _selectedImageBytes;
+  String? _imagePath;
 
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(pestDetectionProvider);
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Pest Detection'),
         actions: [
-          if (state.selectedImage != null)
+          if (state.tfliteResult != null)
             IconButton(
               icon: const Icon(Icons.refresh),
-              onPressed: _reset,
-              tooltip: 'Reset',
+              onPressed: () {
+                ref.read(pestDetectionProvider.notifier).reset();
+                setState(() {
+                  _selectedImageBytes = null;
+                  _imagePath = null;
+                });
+              },
             ),
         ],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(AppDimensions.paddingMD),
+        padding: const EdgeInsets.all(16),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Header
-            Text('Identify Pests & Diseases', style: AppTextStyles.h3),
-            const SizedBox(height: AppDimensions.paddingSM),
-            Text(
-              'Take or upload a photo of the affected plant for AI-powered pest identification.',
-              style: AppTextStyles.body.copyWith(
-                color: AppColors.textSecondary,
-              ),
-            ),
-            const SizedBox(height: AppDimensions.paddingXL),
-
-            // ========== IMAGE PREVIEW ==========
-            if (state.selectedImage != null) ...[
+            // ── Model status banner ──
+            if (state.modelLoadError)
               Container(
-                height: 220,
-                width: double.infinity,
+                padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(AppDimensions.radiusLG),
-                  border: Border.all(color: AppColors.primary.withOpacity(0.3)),
+                  color: Colors.orange.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.orange),
                 ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(AppDimensions.radiusLG),
-                  child: Image.network(
-                    state.selectedImage!.path,
-                    fit: BoxFit.cover,
-                     errorBuilder: (_, __, ___) => const Center(
-    child: Icon(Icons.broken_image, size: 48, color: Colors.grey),
-                  ),)
+                child: Row(
+                  children: [
+                    const Icon(Icons.warning_amber, color: Colors.orange),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'On-device model unavailable. Cloud analysis only.',
+                        style: TextStyle(color: Colors.orange.shade700),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(height: AppDimensions.paddingMD),
 
-              // ========== LOADING STATE ==========
-                            // ========== LOADING STATE ==========
-              if (state.isAnalyzing) ...[
-                Padding(
-                  padding: const EdgeInsets.all(AppDimensions.paddingLG),
-                  child: Column(
-                    children: [
-                      const LinearProgressIndicator(),
-                      const SizedBox(height: AppDimensions.paddingMD),
-                      Text(
-                        'Analyzing your plant image...',
-                        style: AppTextStyles.body.copyWith(
-                          color: AppColors.textSecondary,
-                        ),
-                      ),
-                      const SizedBox(height: AppDimensions.paddingMD),
-                      // Shimmer skeleton for result preview
-                      Card(
-                        child: Padding(
-                          padding: const EdgeInsets.all(AppDimensions.paddingMD),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: const [
-                                  ShimmerBox(width: 150, height: 18),
-                                  ShimmerBox(width: 50, height: 24),
-                                ],
-                              ),
-                              const SizedBox(height: 12),
-                              const ShimmerBox(width: 80, height: 16),
-                              const SizedBox(height: 12),
-                              const ShimmerBox(width: double.infinity, height: 14),
-                              const SizedBox(height: 8),
-                              const ShimmerBox(width: double.infinity, height: 14),
-                              const SizedBox(height: 8),
-                              const ShimmerBox(width: 200, height: 14),
-                              const SizedBox(height: 16),
-                              const ShimmerBox(width: double.infinity, height: 60),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              
-                const Center(
-                  child: Padding(
-                    padding: EdgeInsets.all(AppDimensions.paddingXL),
-                    child: Column(
-                      children: [
-                        CircularProgressIndicator(),
-                        SizedBox(height: AppDimensions.paddingMD),
-                        Text('Analyzing your plant image...'),
-                      ],
-                    ),
-                  ),
-                ),
-              ]
+            const SizedBox(height: 16),
 
-              // ========== ERROR STATE ==========
-              else if (state.errorMessage != null) ...[
-                Container(
-                  padding: const EdgeInsets.all(AppDimensions.paddingMD),
-                  decoration: BoxDecoration(
-                    color: AppColors.error.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(AppDimensions.radiusMD),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.error_outline, color: AppColors.error),
-                      const SizedBox(width: AppDimensions.paddingSM),
-                      Expanded(
-                        child: Text(
-                          state.errorMessage!,
-                          style: AppTextStyles.body.copyWith(color: AppColors.error),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: AppDimensions.paddingMD),
-              ]
+            // ── Image picker ──
+            _buildImagePicker(state, isDark, theme),
 
-              // ========== RESULT DISPLAY ==========
-              else if (state.detectionResult != null) ...[
-                _buildResultCard(state.detectionResult!),
-                const SizedBox(height: AppDimensions.paddingMD),
-              ],
+            const SizedBox(height: 20),
 
-              const SizedBox(height: AppDimensions.paddingSM),
+            // ── Analyze button ──
+            if (_selectedImageBytes != null) ...[
+              FilledButton.icon(
+                onPressed: state.isAnalyzing
+                    ? null
+                    : () => _analyzeImage(),
+                icon: state.isAnalyzing
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                      )
+                    : const Icon(Icons.search),
+                label: Text(state.isAnalyzing ? 'Analyzing...' : 'Analyze Plant'),
+              ),
+              const SizedBox(height: 20),
             ],
 
-            // ========== PICK BUTTONS ==========
-            Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: state.isAnalyzing ? null : () => _pickImage(ImageSource.camera),
-                    icon: const Icon(Icons.camera_alt),
-                    label: const Text('Take Photo'),
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.all(AppDimensions.paddingMD),
-                    ),
-                  ),
+            // ── Error message ──
+            if (state.errorMessage != null) ...[
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.red.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.red),
                 ),
-                const SizedBox(width: AppDimensions.paddingMD),
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: state.isAnalyzing ? null : () => _pickImage(ImageSource.gallery),
-                    icon: const Icon(Icons.photo_library),
-                    label: const Text('Gallery'),
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.all(AppDimensions.paddingMD),
+                child: Row(
+                  children: [
+                    const Icon(Icons.error_outline, color: Colors.red),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        state.errorMessage!,
+                        style: TextStyle(color: Colors.red.shade700, fontSize: 13),
+                      ),
                     ),
-                  ),
+                  ],
                 ),
-              ],
-            ),
-            const SizedBox(height: AppDimensions.paddingXL),
+              ),
+              const SizedBox(height: 16),
+            ],
 
-            // Info Cards
-            Text('Common Pests & Diseases', style: AppTextStyles.h4),
-            const SizedBox(height: AppDimensions.paddingMD),
-            _buildPestCard(
-              title: 'Aphids',
-              description: 'Small insects that suck plant sap',
-              icon: Icons.bug_report,
-            ),
-            _buildPestCard(
-              title: 'Leaf Blight',
-              description: 'Fungal disease causing leaf spots',
-              icon: Icons.local_florist,
-            ),
-            _buildPestCard(
-              title: 'Root Rot',
-              description: 'Root disease from excess moisture',
-              icon: Icons.grass,
-            ),
+            // ── TFLite Quick Result ──
+            if (state.tfliteResult != null) ...[
+              _buildTfliteResultCard(state.tfliteResult!, theme),
+              const SizedBox(height: 16),
+            ],
+
+            // ── Gemini Loading Shimmer ──
+            if (state.isGeminiLoading) ...[
+              _buildGeminiShimmer(isDark),
+              const SizedBox(height: 16),
+            ],
+
+            // ── Gemini Detailed Report ──
+            if (state.geminiReport != null) ...[
+              _buildGeminiReportCard(state.geminiReport!, theme),
+              const SizedBox(height: 16),
+            ],
+
+            // ── Request Gemini if only TFLite result exists ──
+            if (state.tfliteResult != null &&
+                state.geminiReport == null &&
+                !state.isGeminiLoading &&
+                _selectedImageBytes != null) ...[
+              OutlinedButton.icon(
+                onPressed: () => _requestGeminiAnalysis(),
+                icon: const Icon(Icons.cloud_upload_outlined),
+                label: const Text('Get Detailed Analysis (Cloud)'),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Uses Gemini Vision for accurate diagnosis',
+                textAlign: TextAlign.center,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ],
           ],
         ),
       ),
     );
   }
 
-  // ========== REAL RESULT CARD (replaces hardcoded dialog) ==========
-  Widget _buildResultCard(result) {
-    // Extract values safely
-    final name = result.pestOrDiseaseName ?? 'Unknown';
-    final confidence = result.confidence ?? 0.0;
-    final severity = result.severity ?? 'Unknown';
-    final description = result.description ?? 'No description available';
-    final symptoms = result.symptoms ?? [];
-    final treatments = result.treatments ?? [];
+  Widget _buildImagePicker(PestDetectionState _, bool isDark, ThemeData theme) {
+    return GestureDetector(
+      onTap: _pickImage,
+      child: Container(
+        height: 220,
+        decoration: BoxDecoration(
+          color: isDark ? const Color(0xFF1E1E2E) : const Color(0xFFF5F5F5),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: _selectedImageBytes != null
+                ? theme.colorScheme.primary
+                : (isDark ? Colors.grey.shade700 : Colors.grey.shade300),
+            width: _selectedImageBytes != null ? 2 : 1,
+          ),
+        ),
+        child: _selectedImageBytes != null
+            ? ClipRRect(
+                borderRadius: BorderRadius.circular(11),
+                child: Image.memory(
+                  _selectedImageBytes!,
+                  fit: BoxFit.cover,
+                  width: double.infinity,
+                ),
+              )
+            : Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.camera_alt_outlined,
+                    size: 48,
+                    color: isDark ? Colors.grey.shade500 : Colors.grey.shade400,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Tap to capture or select plant image',
+                    style: TextStyle(
+                      color: isDark ? Colors.grey.shade500 : Colors.grey.shade500,
+                      fontSize: 14,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Camera or Gallery',
+                    style: TextStyle(
+                      color: isDark ? Colors.grey.shade600 : Colors.grey.shade400,
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+      ),
+    );
+  }
 
-    // Severity color
-    Color severityColor;
-    switch (severity.toLowerCase()) {
-      case 'high':
-        severityColor = AppColors.error;
-        break;
-      case 'medium':
-        severityColor = Colors.orange;
-        break;
-      default:
-        severityColor = AppColors.success;
-    }
+  Widget _buildTfliteResultCard(TfliteResult result, ThemeData theme) {
+    final isHealthy = result.isHealthy;
+    final confidence = (result.confidence * 100).toStringAsFixed(1);
 
     return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppDimensions.radiusLG),
-      ),
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
-        padding: const EdgeInsets.all(AppDimensions.paddingMD),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Disease name + confidence
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Expanded(
-                  child: Text(
-                    name,
-                    style: AppTextStyles.h4.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppDimensions.paddingSM,
-                    vertical: 4,
-                  ),
+                  padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: severityColor.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(AppDimensions.radiusSM),
+                    color: isHealthy
+                        ? Colors.green.withValues(alpha: 0.1)
+                        : Colors.orange.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Text(
-                    '${(confidence * 100).toStringAsFixed(1)}%',
-                    style: AppTextStyles.caption.copyWith(
-                      color: severityColor,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  child: Icon(
+                    isHealthy ? Icons.check_circle : Icons.warning,
+                    color: isHealthy ? Colors.green : Colors.orange,
+                    size: 24,
                   ),
                 ),
-              ],
-            ),
-            const SizedBox(height: AppDimensions.paddingSM),
-
-            // Severity badge
-            Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppDimensions.paddingSM,
-                vertical: 4,
-              ),
-              decoration: BoxDecoration(
-                color: severityColor,
-                borderRadius: BorderRadius.circular(AppDimensions.radiusSM),
-              ),
-              child: Text(
-                'Severity: $severity',
-                style: AppTextStyles.caption.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            const SizedBox(height: AppDimensions.paddingMD),
-
-            // Description
-            Text('Description', style: AppTextStyles.bodyLarge),
-            const SizedBox(height: 4),
-            Text(description, style: AppTextStyles.body.copyWith(
-              color: AppColors.textSecondary,
-            )),
-            const SizedBox(height: AppDimensions.paddingMD),
-
-            // Symptoms
-            if (symptoms.isNotEmpty) ...[
-              Text('Symptoms', style: AppTextStyles.bodyLarge),
-              const SizedBox(height: 4),
-              ...symptoms.map((s) => Padding(
-                padding: const EdgeInsets.only(bottom: 4),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('• ', style: AppTextStyles.body),
-                    Expanded(child: Text(s, style: AppTextStyles.body)),
-                  ],
-                ),
-              )),
-              const SizedBox(height: AppDimensions.paddingMD),
-            ],
-
-            // Treatments
-            if (treatments.isNotEmpty) ...[
-              Text('Recommended Treatment', style: AppTextStyles.bodyLarge),
-              const SizedBox(height: 4),
-              ...treatments.map((t) => Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: Container(
-                  padding: const EdgeInsets.all(AppDimensions.paddingSM),
-                  decoration: BoxDecoration(
-                    color: AppColors.success.withOpacity(0.08),
-                    borderRadius: BorderRadius.circular(AppDimensions.radiusMD),
-                  ),
+                const SizedBox(width: 12),
+                Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(t.name ?? '', style: AppTextStyles.body.copyWith(
-                        fontWeight: FontWeight.w600,
-                      )),
-                      if (t.description != null)
-                        Text(t.description!, style: AppTextStyles.caption.copyWith(
-                          color: AppColors.textSecondary,
-                        )),
+                      Text(
+                        'Quick Detection (On-Device)',
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        result.displayName,
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                     ],
                   ),
                 ),
-              )),
-            ],
+              ],
+            ),
+            const SizedBox(height: 12),
+            // Confidence bar
+            Row(
+              children: [
+                Text(
+                  'Confidence: $confidence%',
+                  style: theme.textTheme.bodyMedium,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: LinearProgressIndicator(
+                    value: result.confidence,
+                    backgroundColor: (theme.brightness == Brightness.dark)
+                        ? Colors.grey.shade700
+                        : Colors.grey.shade200,
+                    color: isHealthy
+                        ? Colors.green
+                        : (result.confidence > 0.7 ? Colors.orange : Colors.red),
+                    borderRadius: BorderRadius.circular(4),
+                    minHeight: 8,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              isHealthy
+                  ? 'No disease detected by on-device model. For detailed analysis, use cloud detection below.'
+                  : 'Possible disease detected. Use cloud analysis for detailed diagnosis and treatment recommendations.',
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildPestCard({
-    required String title,
-    required String description,
-    required IconData icon,
-  }) {
+  Widget _buildGeminiShimmer(bool isDark) {
     return Card(
-      margin: const EdgeInsets.only(bottom: AppDimensions.paddingMD),
-      child: ListTile(
-        leading: Container(
-          padding: const EdgeInsets.all(AppDimensions.paddingSM),
-          decoration: BoxDecoration(
-            color: AppColors.error.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(AppDimensions.radiusMD),
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Shimmer.fromColors(
+        baseColor: isDark ? const Color(0xFF2A2A3C) : const Color(0xFFE0E0E0),
+        highlightColor: isDark ? const Color(0xFF3A3A4C) : const Color(0xFFF5F5F5),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 180,
+                height: 14,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
+              const SizedBox(height: 12),
+              Container(
+                width: double.infinity,
+                height: 10,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Container(
+                width: double.infinity * 0.8,
+                height: 10,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Container(
+                width: double.infinity * 0.6,
+                height: 10,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
+              const SizedBox(height: 12),
+              Container(
+                width: double.infinity,
+                height: 10,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Container(
+                width: double.infinity * 0.9,
+                height: 10,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
+            ],
           ),
-          child: Icon(icon, color: AppColors.error),
         ),
-        title: Text(title),
-        subtitle: Text(description),
       ),
     );
+  }
+
+  Widget _buildGeminiReportCard(String report, ThemeData theme) {
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.primary.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(
+                    Icons.auto_awesome,
+                    color: theme.colorScheme.primary,
+                    size: 24,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Detailed Report (Cloud)',
+                      style: theme.textTheme.labelSmall?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                    Text(
+                      'Gemini Vision Analysis',
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            const Divider(height: 24),
+            Text(
+              report,
+              style: theme.textTheme.bodyMedium?.copyWith(height: 1.6),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _pickImage() async {
+    showModalBottomSheet(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: Wrap(
+          children: [
+            ListTile(
+              leading: const Icon(Icons.camera_alt),
+              title: const Text('Camera'),
+              onTap: () {
+                Navigator.pop(ctx);
+                _captureImage(ImageSource.camera);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library),
+              title: const Text('Gallery'),
+              onTap: () {
+                Navigator.pop(ctx);
+                _captureImage(ImageSource.gallery);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _captureImage(ImageSource source) async {
+    try {
+      final picked = await _picker.pickImage(
+        source: source,
+        imageQuality: 85,
+      );
+      if (picked != null) {
+        final bytes = await File(picked.path).readAsBytes();
+        setState(() {
+          _selectedImageBytes = bytes;
+          _imagePath = picked.path;
+        });
+        // Auto-analyze after picking
+        _analyzeImage();
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to pick image: $e')),
+      );
+    }
+  }
+
+  Future<void> _analyzeImage() async {
+    if (_selectedImageBytes == null) return;
+    await ref.read(pestDetectionProvider.notifier).analyzeImageFull(_selectedImageBytes!);
+  }
+
+  Future<void> _requestGeminiAnalysis() async {
+    if (_selectedImageBytes == null) return;
+    await ref.read(pestDetectionProvider.notifier).analyzeWithGemini(
+          imageBytes: _selectedImageBytes!,
+          language: 'english', // TODO: use user's language preference
+        );
   }
 }
