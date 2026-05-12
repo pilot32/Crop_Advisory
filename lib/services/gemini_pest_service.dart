@@ -1,17 +1,14 @@
 import 'dart:typed_data';
 
-//import 'package:crop_advisory/main.dart';
-//import 'package:flutter/material.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:logger/logger.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 class GeminiPestService {
   final Logger _logger = Logger();
 
   final GenerativeModel _visionModel;
   GeminiPestService(this._visionModel);
-  //
+
   Future<String> analyzeImage({
     required List<int> imageBytes,
     required String mimeType,
