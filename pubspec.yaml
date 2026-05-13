@@ -70,9 +70,9 @@ dependencies:
   google_fonts: ^8.1.0
   flutter_tts: ^4.2.5
   tflite_flutter: ^0.12.1
-  mocktail: ^1.0.5
 
 dev_dependencies:
+  mocktail: ^1.0.5
   build_runner: ^2.4.8
 
   # Linting
