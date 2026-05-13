@@ -1,27 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-
-// Minimal TfliteResult used for unit tests
-class TfliteResult {
-  final String label;
-  final double confidence;
-
-  const TfliteResult({required this.label, required this.confidence});
-
-  bool get isHealthy => label.toLowerCase().contains('healthy');
-
-  String get displayName {
-    if (!label.contains('___')) return label;
-    final parts = label.split('___');
-    final crop = parts[0].replaceAll('_', ' ');
-    final diseaseRaw = parts[1].replaceAll('_', ' ');
-    final disease = diseaseRaw
-        .split(' ')
-        .map((w) => w.isEmpty ? w : '${w[0].toUpperCase()}${w.substring(1).toLowerCase()}')
-        .join(' ');
-    if (isHealthy) return 'Healthy (${crop.trim()})';
-    return '${disease.trim()} (${crop.trim()})';
-  }
-}
+import '../../../lib/providers/pest_detection_provider.dart';
 
 void main() {
   group('TfliteResult', () {
