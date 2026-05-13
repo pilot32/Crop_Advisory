@@ -140,10 +140,11 @@ class _PestDetectionScreenState extends ConsumerState<PestDetectionScreen> {
             // ── Request Gemini if only TFLite result exists ──
             if (state.tfliteResult != null &&
                 state.geminiReport == null &&
-                !state.isGeminiLoading &&
-                _selectedImageBytes != null) ...[
+                !state.isGeminiLoading) ...[
               OutlinedButton.icon(
-                onPressed: () => _requestGeminiAnalysis(),
+                onPressed: _selectedImageBytes == null
+                    ? null
+                    : () => _requestGeminiAnalysis(),
                 icon: const Icon(Icons.cloud_upload_outlined),
                 label: const Text('Get Detailed Analysis (Cloud)'),
               ),

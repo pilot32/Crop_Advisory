@@ -14,7 +14,7 @@ final _logger = Logger();
 class TfliteResult {
   final String label;
   final double confidence;
-  TfliteResult({required this.label, required this.confidence});
+  const TfliteResult({required this.label, required this.confidence});
 
   bool get isHealthy => label.toLowerCase().contains('healthy');
 
@@ -94,7 +94,7 @@ final geminiPestServiceProvider = Provider<GeminiPestService?>((ref) {
       model: 'gemini-1.5-flash',
       apiKey: apiKey,
     );
-    return GeminiPestService(model);
+    return GeminiPestService(GoogleGenerativeModelWrapper(model));
   } catch (e) {
     _logger.e('Failed to initialize Gemini pest service: $e');
     return null;

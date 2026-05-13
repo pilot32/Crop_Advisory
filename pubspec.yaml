@@ -72,6 +72,7 @@ dependencies:
   tflite_flutter: ^0.12.1
 
 dev_dependencies:
+  mocktail: ^1.0.5
   build_runner: ^2.4.8
 
   # Linting

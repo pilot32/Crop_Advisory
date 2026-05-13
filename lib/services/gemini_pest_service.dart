@@ -2,11 +2,23 @@ import 'dart:typed_data';
 
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:logger/logger.dart';
+//since generative model can not be directly accesed being final class
+//we creating a wrapper calss to abstract it for the test
+abstract class GenerativeModelWrapper {
+  Future<GenerateContentResponse> generateContent(List<Content> contents);
+}
+class GoogleGenerativeModelWrapper implements GenerativeModelWrapper {
+  final GenerativeModel _model;
+  GoogleGenerativeModelWrapper(this._model);
 
+  @override
+  Future<GenerateContentResponse> generateContent(List<Content> contents) =>
+      _model.generateContent(contents);
+}
 class GeminiPestService {
   final Logger _logger = Logger();
 
-  final GenerativeModel _visionModel;
+  final GenerativeModelWrapper _visionModel;
   GeminiPestService(this._visionModel);
 
   Future<String> analyzeImage({
