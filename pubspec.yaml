@@ -68,8 +68,11 @@ dependencies:
   shimmer: ^3.0.0
   local_auth: ^2.3.0
   google_fonts: ^8.1.0
+  flutter_tts: ^4.2.5
+  tflite_flutter: ^0.12.1
 
 dev_dependencies:
+  mocktail: ^1.0.5
   build_runner: ^2.4.8
 
   # Linting
@@ -97,6 +100,9 @@ flutter:
     - assets/images/
     - assets/icons/
     - assets/translations/
+    - assets/models/
+    - assets/labels/
+
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
   # For details regarding adding assets from package dependencies, see
