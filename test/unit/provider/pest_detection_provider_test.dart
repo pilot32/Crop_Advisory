@@ -249,7 +249,6 @@ class TestPestDetectionNotifier extends StateNotifier<PestDetectionState> {
     }
   }
 
-  @override
   void reset() {
     state = PestDetectionState(isTfliteReady: state.isTfliteReady);
   }

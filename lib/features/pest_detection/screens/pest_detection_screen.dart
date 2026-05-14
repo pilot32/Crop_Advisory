@@ -16,7 +16,6 @@ class PestDetectionScreen extends ConsumerStatefulWidget {
 class _PestDetectionScreenState extends ConsumerState<PestDetectionScreen> {
   final ImagePicker _picker = ImagePicker();
   Uint8List? _selectedImageBytes;
-  String? _imagePath;
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +34,6 @@ class _PestDetectionScreenState extends ConsumerState<PestDetectionScreen> {
                 ref.read(pestDetectionProvider.notifier).reset();
                 setState(() {
                   _selectedImageBytes = null;
-                  _imagePath = null;
                 });
               },
             ),
@@ -471,7 +469,6 @@ class _PestDetectionScreenState extends ConsumerState<PestDetectionScreen> {
         final bytes = await File(picked.path).readAsBytes();
         setState(() {
           _selectedImageBytes = bytes;
-          _imagePath = picked.path;
         });
         // Auto-analyze after picking
         _analyzeImage();
