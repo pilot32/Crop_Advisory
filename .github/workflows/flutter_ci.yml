@@ -1,0 +1,51 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  analyze-and-test:
+    name: Analyze & Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Java (for Flutter)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Get Flutter dependencies
+        run: flutter pub get
+
+      - name: Generate code (freezed, build_runner, etc.)
+        run: dart run build_runner build --delete-conflicting-outputs
+
+      - name: Check formatting
+        run: dart format --set-exit-if-changed .
+
+      - name: Run Flutter analyze
+        run: flutter analyze --no-fatal-infos
+
+      - name: Run unit tests
+        run: flutter test --reporter compact
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: test/
+          retention-days: 7
