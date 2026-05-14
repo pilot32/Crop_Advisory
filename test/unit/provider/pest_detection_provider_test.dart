@@ -32,6 +32,10 @@ final testPestDetectionProvider = StateNotifierProvider<PestDetectionNotifier, P
 );
 
 void main() {
+  setUpAll(() {
+    registerFallbackValue(Uint8List(0));
+  });
+
   late MockTfliteService mockTflite;
   late MockGeminiPestService mockGemini;
   late ProviderContainer container;
