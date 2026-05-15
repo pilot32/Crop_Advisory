@@ -8,7 +8,6 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/constants/app_constants.dart';
 import '../providers/simple_auth_provider.dart';
 import 'register_screen.dart';
-import 'package:local_auth/local_auth.dart';
 import '../../../services/biometric_service.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
