@@ -89,7 +89,6 @@ void main() async {
     // Listen for auth state changes to ensure tokens are refreshed
     Supabase.instance.client.auth.onAuthStateChange.listen((data) {
       final AuthChangeEvent event = data.event;
-      final Session? session = data.session;
       
       // The Supabase SDK automatically handles token refresh when this listener is active.
       // You can add routing logic here if you want to force users to the login screen 

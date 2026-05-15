@@ -2,7 +2,6 @@
 ///
 /// Displays weather forecast and farming alerts with real API data
 import 'package:shimmer/shimmer.dart';
-import 'package:crop_advisory/core/widgets/shimmer_box.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_theme.dart';

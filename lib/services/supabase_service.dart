@@ -10,7 +10,6 @@ import 'dart:typed_data';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:logger/logger.dart';
-import '../core/config/env_config.dart';
 
 part 'supabase_service.g.dart';
 
