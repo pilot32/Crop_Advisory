@@ -54,9 +54,10 @@ void main() {
       expect(stateWithError.errorMessage, equals('Something broke'));
 
       final cleared = stateWithError.copyWith(errorMessage: null);
-      // Note: copyWith with null doesn't reset because of ?? this.errorMessage
-      // So errorMessage persists unless explicitly set
-      expect(cleared.errorMessage, equals('Something broke'));
+      // The implementation of copyWith explicitly uses `errorMessage: errorMessage`
+      // instead of `errorMessage: errorMessage ?? this.errorMessage`
+      // so it correctly resets the error when not passed or set to null.
+      expect(cleared.errorMessage, isNull);
     });
 
     test('copyWith updates modelLoadError', () {

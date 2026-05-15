@@ -32,6 +32,10 @@ final testPestDetectionProvider = StateNotifierProvider<PestDetectionNotifier, P
 );
 
 void main() {
+  setUpAll(() {
+    registerFallbackValue(Uint8List(0));
+  });
+
   late MockTfliteService mockTflite;
   late MockGeminiPestService mockGemini;
   late ProviderContainer container;
@@ -245,7 +249,6 @@ class TestPestDetectionNotifier extends StateNotifier<PestDetectionState> {
     }
   }
 
-  @override
   void reset() {
     state = PestDetectionState(isTfliteReady: state.isTfliteReady);
   }
