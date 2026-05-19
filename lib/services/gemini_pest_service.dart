@@ -1,25 +1,11 @@
-import 'dart:typed_data';
-
-import 'package:google_generative_ai/google_generative_ai.dart';
+import 'dart:convert';
 import 'package:logger/logger.dart';
-//since generative model can not be directly accesed being final class
-//we creating a wrapper calss to abstract it for the test
-abstract class GenerativeModelWrapper {
-  Future<GenerateContentResponse> generateContent(List<Content> contents);
-}
-class GoogleGenerativeModelWrapper implements GenerativeModelWrapper {
-  final GenerativeModel _model;
-  GoogleGenerativeModelWrapper(this._model);
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-  @override
-  Future<GenerateContentResponse> generateContent(List<Content> contents) =>
-      _model.generateContent(contents);
-}
+final _logger = Logger();
+
 class GeminiPestService {
   final Logger _logger = Logger();
-
-  final GenerativeModelWrapper _visionModel;
-  GeminiPestService(this._visionModel);
 
   Future<String> analyzeImage({
     required List<int> imageBytes,
@@ -27,8 +13,10 @@ class GeminiPestService {
     String language = 'english',
   }) async {
     try {
+      _logger.i('Sending pest image to edge function');
+
       final prompt = '''
-      You are an expert in plant pathology and pest management for Indian agriculture. 
+You are an expert in plant pathology and pest management for Indian agriculture. 
 Analyze this image and respond in $language language.
 
 Identify:
@@ -43,18 +31,27 @@ Identify:
 If the image does not show any pest or disease, provide general plant health assessment.
 ''';
 
-      final content = Content.multi([
-        TextPart(prompt),
-        DataPart(mimeType, Uint8List.fromList(imageBytes)),
-      ]);
+      final response = await Supabase.instance.client.functions.invoke(
+        'ask-ai',
+        body: {
+          'prompt': prompt.trim(),
+          'imageData': base64Encode(imageBytes),
+          'mimeType': mimeType,
+        },
+      );
 
-      final response = await _visionModel.generateContent([content]);
-      final text = response.text;
-      if (text == null || text.isEmpty) {
+      final data = response.data;
+      if (response.status != null && response.status! >= 400) {
+        throw Exception(data?['error'] ?? 'Analysis failed');
+      }
+
+      final text = data?['text'];
+      if (text == null || text.toString().isEmpty) {
         throw Exception('Empty analysis response');
       }
-      _logger.i('Analysis done');
-      return text;
+
+      _logger.i('Analysis complete');
+      return text.toString();
     } catch (e) {
       _logger.e('Error analyzing image: $e');
       rethrow;

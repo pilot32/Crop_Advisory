@@ -2,6 +2,8 @@
 /// 
 /// Calculate NPK requirements based on crop type and area
 
+library fertilizer_calculator_screen;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';

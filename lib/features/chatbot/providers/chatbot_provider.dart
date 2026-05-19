@@ -1,29 +1,19 @@
-/// Chatbot Provider
-/// 
-/// Manages chat state and interactions with Gemini AI
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_generative_ai/google_generative_ai.dart';
 import '../../../models/chat_message.dart';
 import '../../../services/gemini_service.dart';
 import '../../../main.dart';
+import 'dart:convert';
 
 final chatMessagesProvider = StateNotifierProvider<ChatNotifier, List<ChatMessage>>((ref) {
-  final geminiService = ref.watch(geminiServiceProvider);
+  final geminiService = GeminiService(); // no dependency injection needed now
   return ChatNotifier(geminiService);
 });
 
 class ChatNotifier extends StateNotifier<List<ChatMessage>> {
   final GeminiService _geminiService;
   bool _isProcessing = false;
-  ChatSession? _chatSession;
 
   ChatNotifier(this._geminiService) : super([]) {
-    _initializeChat();
-  }
-
-  void _initializeChat() {
-    _chatSession = _geminiService.startChat();
     _addWelcomeMessage();
   }
 
@@ -32,11 +22,12 @@ class ChatNotifier extends StateNotifier<List<ChatMessage>> {
       ChatMessage(
         content: 'Hello! I\'m your AI farming assistant. How can I help you today?\n\n'
             'You can ask me about:\n'
-            '• Crop recommendations\n'
-            '• Pest and disease management\n'
-            '• Fertilizer advice\n'
-            '• Weather-based farming decisions\n'
-            '• And more!',
+            '- Crop recommendations\n'
+            '- Pest and disease management\n'
+            '- Fertilizer advice\n'
+            '- Weather-based farming decisions\n'
+            '- And more!\n\n'
+            'Note: You have 5 AI questions per day.',
         role: MessageRole.assistant,
       ),
     ];
@@ -51,34 +42,45 @@ class ChatNotifier extends StateNotifier<List<ChatMessage>> {
       _isProcessing = true;
 
       // Add user message
-      final userMessage = ChatMessage(
-        content: content,
-        role: MessageRole.user,
-      );
+      final userMessage = ChatMessage(content: content, role: MessageRole.user);
       state = [...state, userMessage];
 
-      logger.i('User message added to chat');
+      logger.i('User message added');
 
-      // Get AI response
+      // Build history from last 6 messages for context
+      final history = state
+          .where((m) => m.role != MessageRole.system)
+          .toList()
+          .reversed
+          .take(6)
+          .map((m) => {'role': m.role.name, 'content': m.content})
+          .toList();
+
+      // Call edge function via GeminiService
       final response = await _geminiService.sendChatMessage(
-        session: _chatSession!,
+        session: '',
         message: content,
+        history: history,
       );
 
-      // Add assistant message
       final assistantMessage = ChatMessage(
         content: response,
         role: MessageRole.assistant,
       );
       state = [...state, assistantMessage];
 
-      logger.i('Assistant response added to chat');
+      logger.i('Assistant response added');
+    } on RateLimitException catch (e) {
+      final errorMessage = ChatMessage(
+        content: 'Daily limit reached (${e.remaining}/5 remaining). Try again tomorrow!',
+        role: MessageRole.assistant,
+        isError: true,
+      );
+      state = [...state, errorMessage];
     } catch (e) {
       logger.e('Error sending message: $e');
-      
-      // Add error message
       final errorMessage = ChatMessage(
-        content: 'Sorry, I encountered an error. Please try again.',
+        content: 'Sorry, I encountered an error. Please check your internet connection and try again.',
         role: MessageRole.assistant,
         isError: true,
       );
@@ -89,7 +91,6 @@ class ChatNotifier extends StateNotifier<List<ChatMessage>> {
   }
 
   void clearChat() {
-    _chatSession = _geminiService.startChat();
     state = [];
     _addWelcomeMessage();
     logger.i('Chat cleared');
@@ -100,7 +101,6 @@ class ChatNotifier extends StateNotifier<List<ChatMessage>> {
   }
 }
 
-// Provider to check if chat is processing
 final isChatProcessingProvider = Provider<bool>((ref) {
   final chatNotifier = ref.read(chatMessagesProvider.notifier);
   return chatNotifier.isProcessing;
