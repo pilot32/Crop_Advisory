@@ -4,7 +4,6 @@ import 'package:image/image.dart' as img_lib;
 import 'package:logger/logger.dart';
 import '../services/tflite_service.dart';
 import '../services/gemini_pest_service.dart';
-import 'package:google_generative_ai/google_generative_ai.dart';
 
 final _logger = Logger();
 
@@ -78,26 +77,8 @@ final tfliteServiceProvider = Provider<TfliteService>((ref) {
   return service;
 });
 
-/// Creates a GeminiPestService using user's Gemini API key from settings
-final geminiPestServiceProvider = Provider<GeminiPestService?>((ref) {
-  // This will be wired to wherever the user's Gemini API key is stored.
-  // For now, reads from the same source as the chatbot Gemini service.
-  // TODO: Wire to user's OAuth/API key from secure storage
-  try {
-    final apiKey = ''; // Will be filled from secure storage / user settings
-    if (apiKey.isEmpty) {
-      _logger.w('No Gemini API key found. Cloud analysis disabled.');
-      return null;
-    }
-    final model = GenerativeModel(
-      model: 'gemini-1.5-flash',
-      apiKey: apiKey,
-    );
-    return GeminiPestService(GoogleGenerativeModelWrapper(model));
-  } catch (e) {
-    _logger.e('Failed to initialize Gemini pest service: $e');
-    return null;
-  }
+final geminiPestServiceProvider = Provider<GeminiPestService>((ref) {
+  return GeminiPestService();
 });
 
 final pestDetectionProvider =
@@ -171,12 +152,6 @@ class PestDetectionNotifier extends StateNotifier<PestDetectionState> {
     String language = 'english',
   }) async {
     final geminiService = _ref.read(geminiPestServiceProvider);
-    if (geminiService == null) {
-      state = state.copyWith(
-        errorMessage: 'Gemini not configured. Add your API key in Settings.',
-      );
-      return;
-    }
 
     state = state.copyWith(
       isGeminiLoading: true,
@@ -238,27 +213,25 @@ class PestDetectionNotifier extends StateNotifier<PestDetectionState> {
 
     // Step 2: Gemini cloud (runs in background, doesn't block UI)
     final geminiService = _ref.read(geminiPestServiceProvider);
-    if (geminiService != null) {
-      state = state.copyWith(isGeminiLoading: true);
-      try {
-        // Compress image for Gemini (save bandwidth)
-        final compressed = _compressImage(imageBytes, maxSize: 1024);
-        final report = await geminiService.analyzeImage(
-          imageBytes: compressed,
-          mimeType: 'image/jpeg',
-          language: language,
-        );
-        state = state.copyWith(
-          geminiReport: report,
-          isGeminiLoading: false,
-        );
-      } catch (e) {
-        _logger.e('Gemini cloud analysis failed: $e');
-        state = state.copyWith(
-          isGeminiLoading: false,
-          errorMessage: 'Cloud analysis failed. On-device result still available.',
-        );
-      }
+    state = state.copyWith(isGeminiLoading: true);
+    try {
+      // Compress image for Gemini (save bandwidth)
+      final compressed = _compressImage(imageBytes, maxSize: 1024);
+      final report = await geminiService.analyzeImage(
+        imageBytes: compressed,
+        mimeType: 'image/jpeg',
+        language: language,
+      );
+      state = state.copyWith(
+        geminiReport: report,
+        isGeminiLoading: false,
+      );
+    } catch (e) {
+      _logger.e('Gemini cloud analysis failed: $e');
+      state = state.copyWith(
+        isGeminiLoading: false,
+        errorMessage: 'Cloud analysis failed. On-device result still available.',
+      );
     }
   }
 
